@@ -1,0 +1,25 @@
+{
+  "name": "ting",
+  "version": "0.1.0",
+  "description": "Durable and Realtime Messaging System primarily geared towards Web Apps",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Tanmay Patel (me@tammaypatel.com)",
+  "license": "UNLICENCED",
+  "dependencies": {
+    "async": "^2.0.1",
+    "bluebird": "^3.4.1",
+    "boom": "^3.2.2",
+    "config": "^1.21.0",
+    "good": "^7.0.1",
+    "good-console": "^6.1.2",
+    "good-squeeze": "^4.0.0",
+    "hapi": "^14.1.0",
+    "lodash": "^4.14.1",
+    "moment": "^2.14.1",
+    "scooter": "^4.0.0",
+    "winston": "^2.2.0"
+  }
+}
