@@ -1,15 +1,15 @@
 'use strict';
 
-const topicStore = require('../persistance/storage/TopicStore');
-const subscriptionStore = require('../persistance/storage/SubscriptionStore');
-const messageStore = require('../persistance/storage/MessageStore');
+const topicStore = require('../storage/TopicStore');
+const subscriptionStore = require('../storage/SubscriptionStore');
+const messageStore = require('../storage/MessageStore');
 
 function createTopicsTable(knex)
 {
     return knex.schema.createTable(topicStore.TABLE_NAME, function(table)
     {
         table.uuid('topicId').primary();
-        table.string('topic');
+        table.string('name', 1024);
         table.boolean('isActive');
         table.timestamp('createdAt');
         table.timestamp('updatedAt');
@@ -22,7 +22,7 @@ function createSubscriptionsTable(knex)
     {
         table.uuid('subscriptionId').primary();
         table.boolean('topicId').references('topicId').inTable(topicStore.TABLE_NAME);
-        table.string('subscriber');
+        table.string('subscriber', 256);
         table.boolean('isDurable');
         table.boolean('isActive');
         table.timestamp('createdAt');
@@ -36,7 +36,8 @@ function createMessagesTable(knex)
     {
         table.uuid('messageId').primary();
         table.boolean('topicId').references('topicId').inTable(topicStore.TABLE_NAME);
-        table.string('publisher');
+        table.string('publisher', 256);
+        table.string('body', 4096);
         table.boolean('isActive');
         table.timestamp('createdAt');
         table.timestamp('updatedAt');
