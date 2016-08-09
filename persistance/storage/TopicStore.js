@@ -116,36 +116,6 @@ class TopicStore
             return topics;
         });
     }
-
-    retrievePage(pageStart, pageSize)
-    {
-        if(!pageStart)
-        {
-            pageStart = 0;
-        }
-
-        if(!pageSize)
-        {
-            pageSize = 99999;
-        }
-
-        return knex.select('*').from(this.TABLE_NAME)
-        .offset(pageStart)
-        .limit(pageSize)
-        .then((rows) =>
-        {
-            let topics = [];
-
-            if(rows.length)
-            {
-                topics = _.map(rows, (currentRow) => {
-                    return this._deserialize(currentRow);
-                });
-            }
-
-            return topics;
-        });
-    }
 }
 
 module.exports = new TopicStore();

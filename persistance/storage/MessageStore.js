@@ -88,19 +88,31 @@ class MessageStore
         });
     }
 
-    retrieveFromPublisher(publisher)
+    retrieveFromPublisher(publisher, pageStart, pageSize)
     {
-        return this.retrieveByTopicNames([publisher])
+        return this.retrieveFromPublishers([publisher], pageStart, pageSize)
         .then((messages) =>
         {
             return messages.length ? messages[0] : null;
         });
     }
 
-    retrieveFromPublishers(publishers)
+    retrieveFromPublishers(publishers, pageStart, pageSize)
     {
+        if(!pageStart)
+        {
+            pageStart = 0;
+        }
+
+        if(!pageSize)
+        {
+            pageSize = 99999;
+        }
+
         return knex.select('*').from(this.TABLE_NAME)
         .whereIn('publisher', publishers)
+        .offset(pageStart)
+        .limit(pageSize)
         .then((rows) =>
         {
             let messages = [];
@@ -116,7 +128,16 @@ class MessageStore
         });
     }
 
-    retrievePage(pageStart, pageSize)
+    retrieveForTopic(topic, pageStart, pageSize)
+    {
+        return this.retrieveForTopics([topic.get('topicId')], pageStart, pageSize)
+        .then((messages) =>
+        {
+            return messages.length ? messages[0] : null;
+        });
+    }
+
+    retrieveForTopics(topics, pageStart, pageSize)
     {
         if(!pageStart)
         {
@@ -128,7 +149,13 @@ class MessageStore
             pageSize = 99999;
         }
 
+        let topicIds = _.map(topics, (currentTopic) =>
+        {
+            return currentTopic.get('topicId');
+        };
+
         return knex.select('*').from(this.TABLE_NAME)
+        .whereIn('topicId', topicIds)
         .offset(pageStart)
         .limit(pageSize)
         .then((rows) =>

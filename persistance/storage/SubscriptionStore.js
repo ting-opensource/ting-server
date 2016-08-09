@@ -91,35 +91,16 @@ class SubscriptionStore
         });
     }
 
-    retrieveForSubscriber(subscriber)
+    retrieveForSubscriber(subscriber, pageStart, pageSize)
     {
-        return this.retrieveByTopicNames([subscriber])
+        return this.retrieveForSubscribers([subscriber], pageStart, pageSize)
         .then((subscriptions) =>
         {
             return subscriptions.length ? subscriptions[0] : null;
         });
     }
 
-    retrieveForSubscribers(subscribers)
-    {
-        return knex.select('*').from(this.TABLE_NAME)
-        .whereIn('subscriber', subscribers)
-        .then((rows) =>
-        {
-            let subscriptions = [];
-
-            if(rows.length)
-            {
-                subscriptions = _.map(rows, (currentRow) => {
-                    return this._deserialize(currentRow);
-                });
-            }
-
-            return subscriptions;
-        });
-    }
-
-    retrievePage(pageStart, pageSize)
+    retrieveForSubscribers(subscribers, pageStart, pageSize)
     {
         if(!pageStart)
         {
@@ -132,6 +113,7 @@ class SubscriptionStore
         }
 
         return knex.select('*').from(this.TABLE_NAME)
+        .whereIn('subscriber', subscribers)
         .offset(pageStart)
         .limit(pageSize)
         .then((rows) =>
@@ -146,6 +128,51 @@ class SubscriptionStore
             }
 
             return subscriptions;
+        });
+    }
+
+    retrieveForTopic(topic, pageStart, pageSize)
+    {
+        return this.retrieveForTopics([topic.get('topicId')], pageStart, pageSize)
+        .then((messages) =>
+        {
+            return messages.length ? messages[0] : null;
+        });
+    }
+
+    retrieveForTopics(topics, pageStart, pageSize)
+    {
+        if(!pageStart)
+        {
+            pageStart = 0;
+        }
+
+        if(!pageSize)
+        {
+            pageSize = 99999;
+        }
+
+        let topicIds = _.map(topics, (currentTopic) =>
+        {
+            return currentTopic.get('topicId');
+        };
+
+        return knex.select('*').from(this.TABLE_NAME)
+        .whereIn('topicId', topicIds)
+        .offset(pageStart)
+        .limit(pageSize)
+        .then((rows) =>
+        {
+            let messages = [];
+
+            if(rows.length)
+            {
+                messages = _.map(rows, (currentRow) => {
+                    return this._deserialize(currentRow);
+                });
+            }
+
+            return messages;
         });
     }
 }
