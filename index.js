@@ -4,6 +4,7 @@ const Hapi = require('hapi');
 const config = require('config');
 const Promise = require('bluebird');
 
+const storageFacade = require('./persistance/StorageFacade');
 const logger = require('./logging/logger');
 
 global.__base = __dirname;
@@ -58,9 +59,13 @@ server.route({
     handler: require('./routeHandlers/heartbeat')
 });
 
-return server.register({
-    register: require('good'),
-    options: HAPI_LOGGING_OPTIONS
+storageFacade.migrateToLatest()
+.then(() =>
+{
+    return server.register({
+        register: require('good'),
+        options: HAPI_LOGGING_OPTIONS
+    });
 })
 .then(() =>
 {
@@ -79,4 +84,5 @@ return server.register({
 .catch((error) =>
 {
     logger.error(error);
+    throw error;
 });
