@@ -4,6 +4,7 @@ const _ = require('lodash');
 const uuid = require('node-uuid');
 const moment = require('moment');
 
+const knex = require('../knex');
 const Topic = require('../../models/Topic');
 
 const logger = require('../../logging/logger');
@@ -32,6 +33,7 @@ class TopicStore
         let serializedData = topicData;
 
         return new Topic(_.extend(serializedData, {
+            isActive: serializedData.isActive ? true : false,
             createdAt: moment.utc(serializedData.createdAt),
             updatedAt: moment.utc(serializedData.updatedAt)
         }));
@@ -74,6 +76,7 @@ class TopicStore
     {
         return knex.select('*').from(this.TABLE_NAME)
         .whereIn('topicId', topicIds)
+        .orderBy('updatedAt', 'desc')
         .then((rows) =>
         {
             let topics = [];
@@ -102,6 +105,7 @@ class TopicStore
     {
         return knex.select('*').from(this.TABLE_NAME)
         .whereIn('name', names)
+        .orderBy('updatedAt', 'desc')
         .then((rows) =>
         {
             let topics = [];

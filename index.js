@@ -59,6 +59,51 @@ server.route({
     handler: require('./routeHandlers/heartbeat')
 });
 
+/**********/
+/* TOPICS */
+/**********/
+
+server.route({
+    method: 'POST',
+    path:'/topics',
+    handler: require('./routeHandlers/topics/createTopic')
+});
+
+server.route({
+    method: 'GET',
+    path:'/topics/byname',
+    handler: require('./routeHandlers/topics/retrieveTopicByName')
+});
+
+server.route({
+    method: 'GET',
+    path:'/topics/byid',
+    handler: require('./routeHandlers/topics/retrieveTopicById')
+});
+
+/*****************/
+/* SUBSCRIPTIONS */
+/*****************/
+
+server.route({
+    method: 'POST',
+    path:'/subscribe',
+    handler: require('./routeHandlers/subscriptions/subscribe')
+});
+
+server.route({
+    method: 'POST',
+    path:'/unsubscribe',
+    handler: require('./routeHandlers/subscriptions/unsubscribe')
+});
+
+server.route({
+    method: 'GET',
+    path:'/subscriptions',
+    handler: require('./routeHandlers/subscriptions/retriveSubscriptionsOfSubscriber')
+});
+
+
 storageFacade.migrateToLatest()
 .then(() =>
 {

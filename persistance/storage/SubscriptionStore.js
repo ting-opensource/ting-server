@@ -4,9 +4,10 @@ const _ = require('lodash');
 const uuid = require('node-uuid');
 const moment = require('moment');
 
+const knex = require('../knex');
 const Subscription = require('../../models/Subscription');
 const Topic = require('../../models/Topic');
-
+const topicStore = require('../../persistance/storage/TopicStore');
 const logger = require('../../logging/logger');
 
 class SubscriptionStore
@@ -34,9 +35,46 @@ class SubscriptionStore
         let serializedData = _.omit(subscriptionData, 'topicId');
 
         return new Subscription(_.extend(serializedData, {
+            isActive: serializedData.isActive ? true : false,
+            isDurable: serializedData.isDurable ? true : false,
             createdAt: moment.utc(serializedData.createdAt),
             updatedAt: moment.utc(serializedData.updatedAt)
         }));
+    }
+
+    _adaptDataStoreRows(rows)
+    {
+        let subscriptions = [];
+
+        if(rows.length)
+        {
+            let topicIds = _.uniq(_.map(rows, (currentRow) =>
+            {
+                return currentRow.topicId;
+            }));
+
+            return topicStore.retrieveByIds(topicIds)
+            .then((topics) =>
+            {
+                subscriptions = _.map(rows, (currentRow) =>
+                {
+                    let matchedTopic = _.find(topics, (currentTopic) =>
+                    {
+                        return currentRow.topicId === currentTopic.get('topicId');
+                    });
+
+                    return this._deserialize(_.extend({
+                        topic: matchedTopic
+                    }, currentRow));
+                });
+
+                return subscriptions;
+            });
+        }
+        else
+        {
+            return subscriptions;
+        }
     }
 
     create(subscription, tx)
@@ -63,6 +101,64 @@ class SubscriptionStore
         });
     }
 
+    deactivate(subscription, tx)
+    {
+        subscription = subscription.merge({
+            isActive: false,
+            updatedAt: moment.utc()
+        });
+
+        let serializedData = this._serialize(subscription);
+
+        let queryBuilder = knex.update({
+            isActive: serializedData.isActive,
+            updatedAt: serializedData.updatedAt
+        }).where({
+            subscriber: serializedData.subscriber,
+            topicId: serializedData.topicId
+        }).into(this.TABLE_NAME);
+
+        if(tx)
+        {
+            queryBuilder = queryBuilder.transacting(tx);
+        }
+
+        return queryBuilder
+        .then(() =>
+        {
+            return subscription;
+        });
+    }
+
+    reactivate(subscription, tx)
+    {
+        subscription = subscription.merge({
+            isActive: true,
+            updatedAt: moment.utc()
+        });
+
+        let serializedData = this._serialize(subscription);
+
+        let queryBuilder = knex.update({
+            isActive: serializedData.isActive,
+            updatedAt: serializedData.updatedAt
+        }).where({
+            subscriber: serializedData.subscriber,
+            topicId: serializedData.topicId
+        }).into(this.TABLE_NAME);
+
+        if(tx)
+        {
+            queryBuilder = queryBuilder.transacting(tx);
+        }
+
+        return queryBuilder
+        .then(() =>
+        {
+            return subscription;
+        });
+    }
+
     retrieveById(subscriptionId)
     {
         return this.retrieveByIds([subscriptionId])
@@ -76,28 +172,16 @@ class SubscriptionStore
     {
         return knex.select('*').from(this.TABLE_NAME)
         .whereIn('subscriptionId', subscriptionIds)
+        .orderBy('updatedAt', 'desc')
         .then((rows) =>
         {
-            let subscriptions = [];
-
-            if(rows.length)
-            {
-                subscriptions = _.map(rows, (currentRow) => {
-                    return this._deserialize(currentRow);
-                });
-            }
-
-            return subscriptions;
+            return this._adaptDataStoreRows(rows);
         });
     }
 
     retrieveForSubscriber(subscriber, pageStart, pageSize)
     {
-        return this.retrieveForSubscribers([subscriber], pageStart, pageSize)
-        .then((subscriptions) =>
-        {
-            return subscriptions.length ? subscriptions[0] : null;
-        });
+        return this.retrieveForSubscribers([subscriber], pageStart, pageSize);
     }
 
     retrieveForSubscribers(subscribers, pageStart, pageSize)
@@ -116,18 +200,27 @@ class SubscriptionStore
         .whereIn('subscriber', subscribers)
         .offset(pageStart)
         .limit(pageSize)
+        .orderBy('updatedAt', 'desc')
         .then((rows) =>
         {
-            let subscriptions = [];
+            return this._adaptDataStoreRows(rows);
+        });
+    }
 
-            if(rows.length)
-            {
-                subscriptions = _.map(rows, (currentRow) => {
-                    return this._deserialize(currentRow);
-                });
-            }
-
-            return subscriptions;
+    retrieveForATopicForASubscriber(topic, subscriber)
+    {
+        return knex.select('*').from(this.TABLE_NAME)
+        .where({
+            subscriber: subscriber,
+            topicId: topic.get('topicId')
+        })
+        .then((rows) =>
+        {
+            return this._adaptDataStoreRows(rows);
+        })
+        .then((subscriptions) =>
+        {
+            return subscriptions.length ? subscriptions[0] : null;
         });
     }
 
@@ -155,24 +248,16 @@ class SubscriptionStore
         let topicIds = _.map(topics, (currentTopic) =>
         {
             return currentTopic.get('topicId');
-        };
+        });
 
         return knex.select('*').from(this.TABLE_NAME)
         .whereIn('topicId', topicIds)
         .offset(pageStart)
         .limit(pageSize)
+        .orderBy('updatedAt', 'desc')
         .then((rows) =>
         {
-            let messages = [];
-
-            if(rows.length)
-            {
-                messages = _.map(rows, (currentRow) => {
-                    return this._deserialize(currentRow);
-                });
-            }
-
-            return messages;
+            return this._adaptDataStoreRows(rows);
         });
     }
 }
