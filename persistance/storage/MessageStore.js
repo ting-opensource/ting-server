@@ -125,6 +125,27 @@ class MessageStore
         });
     }
 
+    retrieveByIdForTopic(messageId, topic)
+    {
+        return this.retrieveByIdsForTopic([messageId], topic)
+        .then((messages) =>
+        {
+            return messages.size ? messages.first() : null;
+        });
+    }
+
+    retrieveByIdsForTopic(messageIds, topic)
+    {
+        return knex.select('*').from(this.TABLE_NAME)
+        .whereIn('messageId', messageIds)
+        .andWhere('topicId', topic.get('topicId'))
+        .orderBy('updatedAt', 'desc')
+        .then((rows) =>
+        {
+            return this._adaptDataStoreRows(rows);
+        });
+    }
+
     retrieveFromPublisher(publisher, pageStart, pageSize)
     {
         return this.retrieveFromPublishers([publisher], pageStart, pageSize);
@@ -208,21 +229,28 @@ class MessageStore
             pageSize = 99999;
         }
 
-        return this.retrieveById(tillMessageId)
+        return this.retrieveByIdForTopic(tillMessageId, topic)
         .then((message) =>
         {
-            return knex.select('*').from(this.TABLE_NAME)
-            .where('topicId', topic.get('topicId'))
-            .andWhere(function()
+            if(message)
             {
-                this.where('updatedAt', '<=', message.get('updatedAt').valueOf()).orWhere('messageId', tillMessageId);
-            })
-            .orderBy('updatedAt', 'desc')
-            .limit(pageSize)
-            .then((rows) =>
+                return knex.select('*').from(this.TABLE_NAME)
+                .where('topicId', topic.get('topicId'))
+                .andWhere(function()
+                {
+                    this.where('updatedAt', '<=', message.get('updatedAt').valueOf()).orWhere('messageId', tillMessageId);
+                })
+                .orderBy('updatedAt', 'desc')
+                .limit(pageSize)
+                .then((rows) =>
+                {
+                    return this._adaptDataStoreRows(rows);
+                });
+            }
+            else
             {
-                return this._adaptDataStoreRows(rows);
-            });
+                return new Immutable.List([]);
+            }
         });
     }
 
@@ -233,21 +261,28 @@ class MessageStore
             pageSize = 99999;
         }
 
-        return this.retrieveById(sinceMessageId)
+        return this.retrieveByIdForTopic(sinceMessageId, topic)
         .then((message) =>
         {
-            return knex.select('*').from(this.TABLE_NAME)
-            .where('topicId', topic.get('topicId'))
-            .andWhere(function()
+            if(message)
             {
-                this.where('updatedAt', '>=', message.get('updatedAt').valueOf()).orWhere('messageId', sinceMessageId);
-            })
-            .orderBy('updatedAt', 'desc')
-            .limit(pageSize)
-            .then((rows) =>
+                return knex.select('*').from(this.TABLE_NAME)
+                .where('topicId', topic.get('topicId'))
+                .andWhere(function()
+                {
+                    this.where('updatedAt', '>=', message.get('updatedAt').valueOf()).orWhere('messageId', sinceMessageId);
+                })
+                .orderBy('updatedAt', 'desc')
+                .limit(pageSize)
+                .then((rows) =>
+                {
+                    return this._adaptDataStoreRows(rows);
+                });
+            }
+            else
             {
-                return this._adaptDataStoreRows(rows);
-            });
+                return new Immutable.List([]);
+            }
         });
     }
 
