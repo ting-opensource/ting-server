@@ -2,7 +2,6 @@
 
 const Boom = require('boom');
 
-const Topic = require('../../models/Topic');
 const RetrieveTopicByIdCommand = require('../../commands/RetrieveTopicByIdCommand');
 
 module.exports = function(request, reply)
@@ -19,7 +18,7 @@ module.exports = function(request, reply)
         }
         else
         {
-            return reply(Boom.notFound(`topic with id ${topicId} not found`))
+            return reply(Boom.notFound(`topic with id ${topicId} not found`));
         }
     });
-}
+};

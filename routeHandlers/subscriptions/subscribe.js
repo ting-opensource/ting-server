@@ -85,4 +85,4 @@ module.exports = function(request, reply)
     {
         return reply(response.toJS());
     });
-}
+};

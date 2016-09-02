@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-const Topic = require('../../models/Topic');
 const RetrieveSubscriptionsForSubscriberCommand = require('../../commands/RetrieveSubscriptionsForSubscriberCommand');
 
 module.exports = function(request, reply)
@@ -14,14 +13,11 @@ module.exports = function(request, reply)
     {
         if(response)
         {
-            return reply(_.map(response, (currentSubscription) =>
-            {
-                return currentSubscription.toJS();
-            }));
+            return reply(response.toJS());
         }
         else
         {
             return reply([]);
         }
     });
-}
+};

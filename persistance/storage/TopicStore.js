@@ -3,11 +3,10 @@
 const _ = require('lodash');
 const uuid = require('node-uuid');
 const moment = require('moment');
+const Immutable = require('immutable');
 
 const knex = require('../knex');
 const Topic = require('../../models/Topic');
-
-const logger = require('../../logging/logger');
 
 class TopicStore
 {
@@ -41,10 +40,12 @@ class TopicStore
 
     create(topic, tx)
     {
+        let timestamp = moment.utc();
+
         topic = topic.merge({
             topicId: uuid.v4(),
-            createdAt: moment.utc(),
-            updatedAt: moment.utc()
+            createdAt: timestamp,
+            updatedAt: timestamp
         });
 
         let serializedData = this._serialize(topic);
@@ -68,7 +69,7 @@ class TopicStore
         return this.retrieveByIds([topicId])
         .then((topics) =>
         {
-            return topics.length ? topics[0] : null;
+            return topics.size ? topics.first() : null;
         });
     }
 
@@ -83,12 +84,13 @@ class TopicStore
 
             if(rows.length)
             {
-                topics = _.map(rows, (currentRow) => {
+                topics = _.map(rows, (currentRow) =>
+                {
                     return this._deserialize(currentRow);
                 });
             }
 
-            return topics;
+            return new Immutable.List(topics);
         });
     }
 
@@ -97,7 +99,7 @@ class TopicStore
         return this.retrieveByNames([name])
         .then((topics) =>
         {
-            return topics.length ? topics[0] : null;
+            return topics.size ? topics.first() : null;
         });
     }
 
@@ -112,12 +114,13 @@ class TopicStore
 
             if(rows.length)
             {
-                topics = _.map(rows, (currentRow) => {
+                topics = _.map(rows, (currentRow) =>
+                {
                     return this._deserialize(currentRow);
                 });
             }
 
-            return topics;
+            return new Immutable.List(topics);
         });
     }
 }

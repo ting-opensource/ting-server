@@ -3,7 +3,6 @@
 const Boom = require('boom');
 
 const Subscription = require('../../models/Subscription');
-const Topic = require('../../models/Topic');
 
 const RetrieveTopicByNameCommand = require('../../commands/RetrieveTopicByNameCommand');
 const DeactivateSubscriptionCommand = require('../../commands/DeactivateSubscriptionCommand');
@@ -48,4 +47,4 @@ module.exports = function(request, reply)
     {
         return reply(response.toJS());
     });
-}
+};

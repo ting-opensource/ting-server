@@ -3,8 +3,11 @@
 const _ = require('lodash');
 const uuid = require('node-uuid');
 const moment = require('moment');
+const Immutable = require('immutable');
 
-const logger = require('../../logging/logger');
+const knex = require('../knex');
+const Message = require('../../models/Message');
+const topicStore = require('../../persistance/storage/TopicStore');
 
 class MessageStore
 {
@@ -30,18 +33,60 @@ class MessageStore
     {
         let serializedData = _.omit(messageData, 'topicId');
 
-        return new Subscription(_.extend(serializedData, {
+        return new Message(_.extend(serializedData, {
             createdAt: moment.utc(serializedData.createdAt),
             updatedAt: moment.utc(serializedData.updatedAt)
         }));
     }
 
+    _adaptDataStoreRows(rows)
+    {
+        let messages = [];
+
+        if(rows.length)
+        {
+            let topicIds = _.uniq(_.map(rows, (currentRow) =>
+            {
+                return currentRow.topicId;
+            }));
+
+            return topicStore.retrieveByIds(topicIds)
+            .then((topics) =>
+            {
+                messages = _.map(rows, (currentRow) =>
+                {
+                    let matchedTopic = topics.find((currentTopic) =>
+                    {
+                        return currentRow.topicId === currentTopic.get('topicId');
+                    });
+
+                    if(!matchedTopic)
+                    {
+                        matchedTopic = null;
+                    }
+
+                    return this._deserialize(_.extend({
+                        topic: matchedTopic
+                    }, currentRow));
+                });
+
+                return new Immutable.List(messages);
+            });
+        }
+        else
+        {
+            return new Immutable.List(messages);
+        }
+    }
+
     create(message, tx)
     {
+        let timestamp = moment.utc();
+
         message = message.merge({
             messageId: uuid.v4(),
-            createdAt: moment.utc(),
-            updatedAt: moment.utc()
+            createdAt: timestamp,
+            updatedAt: timestamp
         });
 
         let serializedData = this._serialize(message);
@@ -65,7 +110,7 @@ class MessageStore
         return this.retrieveByIds([messageId])
         .then((messages) =>
         {
-            return messages.length ? messages[0] : null;
+            return messages.size ? messages.first() : null;
         });
     }
 
@@ -73,28 +118,16 @@ class MessageStore
     {
         return knex.select('*').from(this.TABLE_NAME)
         .whereIn('messageId', messageIds)
+        .orderBy('updatedAt', 'desc')
         .then((rows) =>
         {
-            let messages = [];
-
-            if(rows.length)
-            {
-                messages = _.map(rows, (currentRow) => {
-                    return this._deserialize(currentRow);
-                });
-            }
-
-            return messages;
+            return this._adaptDataStoreRows(rows);
         });
     }
 
     retrieveFromPublisher(publisher, pageStart, pageSize)
     {
-        return this.retrieveFromPublishers([publisher], pageStart, pageSize)
-        .then((messages) =>
-        {
-            return messages.length ? messages[0] : null;
-        });
+        return this.retrieveFromPublishers([publisher], pageStart, pageSize);
     }
 
     retrieveFromPublishers(publishers, pageStart, pageSize)
@@ -111,33 +144,16 @@ class MessageStore
 
         return knex.select('*').from(this.TABLE_NAME)
         .whereIn('publisher', publishers)
+        .orderBy('updatedAt', 'desc')
         .offset(pageStart)
         .limit(pageSize)
         .then((rows) =>
         {
-            let messages = [];
-
-            if(rows.length)
-            {
-                messages = _.map(rows, (currentRow) => {
-                    return this._deserialize(currentRow);
-                });
-            }
-
-            return messages;
+            return this._adaptDataStoreRows(rows);
         });
     }
 
-    retrieveForTopic(topic, pageStart, pageSize)
-    {
-        return this.retrieveForTopics([topic.get('topicId')], pageStart, pageSize)
-        .then((messages) =>
-        {
-            return messages.length ? messages[0] : null;
-        });
-    }
-
-    retrieveForTopics(topics, pageStart, pageSize)
+    retrieveForTopicTillTime(topic, tillTime, pageStart, pageSize)
     {
         if(!pageStart)
         {
@@ -149,27 +165,112 @@ class MessageStore
             pageSize = 99999;
         }
 
-        let topicIds = _.map(topics, (currentTopic) =>
-        {
-            return currentTopic.get('topicId');
-        };
-
         return knex.select('*').from(this.TABLE_NAME)
-        .whereIn('topicId', topicIds)
+        .where('topicId', topic.get('topicId'))
+        .andWhere('updatedAt', '<=', tillTime.valueOf())
+        .orderBy('updatedAt', 'desc')
         .offset(pageStart)
         .limit(pageSize)
         .then((rows) =>
         {
-            let messages = [];
+            return this._adaptDataStoreRows(rows);
+        });
+    }
 
-            if(rows.length)
+    retrieveForTopicSinceTime(topic, sinceTime, pageStart, pageSize)
+    {
+        if(!pageStart)
+        {
+            pageStart = 0;
+        }
+
+        if(!pageSize)
+        {
+            pageSize = 99999;
+        }
+
+        return knex.select('*').from(this.TABLE_NAME)
+        .where('topicId', topic.get('topicId'))
+        .andWhere('updatedAt', '>=', sinceTime.valueOf())
+        .orderBy('updatedAt', 'desc')
+        .offset(pageStart)
+        .limit(pageSize)
+        .then((rows) =>
+        {
+            return this._adaptDataStoreRows(rows);
+        });
+    }
+
+    retrieveForTopicTillMessageId(topic, tillMessageId, pageSize)
+    {
+        if(!pageSize)
+        {
+            pageSize = 99999;
+        }
+
+        return this.retrieveById(tillMessageId)
+        .then((message) =>
+        {
+            return knex.select('*').from(this.TABLE_NAME)
+            .where('topicId', topic.get('topicId'))
+            .andWhere(function()
             {
-                messages = _.map(rows, (currentRow) => {
-                    return this._deserialize(currentRow);
-                });
-            }
+                this.where('updatedAt', '<=', message.get('updatedAt').valueOf()).orWhere('messageId', tillMessageId);
+            })
+            .orderBy('updatedAt', 'desc')
+            .limit(pageSize)
+            .then((rows) =>
+            {
+                return this._adaptDataStoreRows(rows);
+            });
+        });
+    }
 
-            return messages;
+    retrieveForTopicSinceMessageId(topic, sinceMessageId, pageSize)
+    {
+        if(!pageSize)
+        {
+            pageSize = 99999;
+        }
+
+        return this.retrieveById(sinceMessageId)
+        .then((message) =>
+        {
+            return knex.select('*').from(this.TABLE_NAME)
+            .where('topicId', topic.get('topicId'))
+            .andWhere(function()
+            {
+                this.where('updatedAt', '>=', message.get('updatedAt').valueOf()).orWhere('messageId', sinceMessageId);
+            })
+            .orderBy('updatedAt', 'desc')
+            .limit(pageSize)
+            .then((rows) =>
+            {
+                return this._adaptDataStoreRows(rows);
+            });
+        });
+    }
+
+    retrieveForTopic(topic, pageStart, pageSize)
+    {
+        if(!pageStart)
+        {
+            pageStart = 0;
+        }
+
+        if(!pageSize)
+        {
+            pageSize = 99999;
+        }
+
+        return knex.select('*').from(this.TABLE_NAME)
+        .where('topicId', topic.get('topicId'))
+        .orderBy('updatedAt', 'desc')
+        .offset(pageStart)
+        .limit(pageSize)
+        .then((rows) =>
+        {
+            return this._adaptDataStoreRows(rows);
         });
     }
 }

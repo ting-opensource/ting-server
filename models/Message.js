@@ -1,18 +1,17 @@
 'use strict';
 
-const _ = require('lodash');
 const Immutable = require('immutable');
 
-const logger = require('../logging/logger');
+const MessageTypes = require('./MessageTypes');
 
 class Message extends Immutable.Record({
     messageId: '',
-    topic: null, /*: Topic */
+    topic: null, /* Topic */
     publisher: '',
+    type: MessageTypes.TEXT,
     body: '',
-    isActive: false,
-    createdAt: null, /*: Moment */
-    updatedAt: null, /*: Moment */
+    createdAt: null, /* Moment */
+    updatedAt: null /* Moment */
 })
 {
 }

@@ -2,7 +2,6 @@
 
 const Hapi = require('hapi');
 const config = require('config');
-const Promise = require('bluebird');
 
 const storageFacade = require('./persistance/StorageFacade');
 const logger = require('./logging/logger');
@@ -46,7 +45,7 @@ const HAPI_LOGGING_OPTIONS = {
 
 server.route({
     method: 'GET',
-    path:'/',
+    path: '/',
     handler: function(request, reply)
     {
         return reply('hello world').type('application/json');
@@ -55,7 +54,7 @@ server.route({
 
 server.route({
     method: 'GET',
-    path:'/heartbeat',
+    path: '/heartbeat',
     handler: require('./routeHandlers/heartbeat')
 });
 
@@ -65,19 +64,19 @@ server.route({
 
 server.route({
     method: 'POST',
-    path:'/topics',
+    path: '/topics',
     handler: require('./routeHandlers/topics/createTopic')
 });
 
 server.route({
     method: 'GET',
-    path:'/topics/byname',
+    path: '/topics/byname',
     handler: require('./routeHandlers/topics/retrieveTopicByName')
 });
 
 server.route({
     method: 'GET',
-    path:'/topics/byid',
+    path: '/topics/byid',
     handler: require('./routeHandlers/topics/retrieveTopicById')
 });
 
@@ -87,22 +86,33 @@ server.route({
 
 server.route({
     method: 'POST',
-    path:'/subscribe',
+    path: '/subscribe',
     handler: require('./routeHandlers/subscriptions/subscribe')
 });
 
 server.route({
     method: 'POST',
-    path:'/unsubscribe',
+    path: '/unsubscribe',
     handler: require('./routeHandlers/subscriptions/unsubscribe')
 });
 
 server.route({
     method: 'GET',
-    path:'/subscriptions',
+    path: '/subscriptions',
     handler: require('./routeHandlers/subscriptions/retriveSubscriptionsOfSubscriber')
 });
 
+server.route({
+    method: 'POST',
+    path: '/messages/publish',
+    handler: require('./routeHandlers/messages/publishMessage')
+});
+
+server.route({
+    method: 'GET',
+    path: '/messages',
+    handler: require('./routeHandlers/messages/retrieveMessagesForTopic')
+});
 
 storageFacade.migrateToLatest()
 .then(() =>

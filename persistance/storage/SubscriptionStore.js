@@ -3,12 +3,11 @@
 const _ = require('lodash');
 const uuid = require('node-uuid');
 const moment = require('moment');
+const Immutable = require('immutable');
 
 const knex = require('../knex');
 const Subscription = require('../../models/Subscription');
-const Topic = require('../../models/Topic');
 const topicStore = require('../../persistance/storage/TopicStore');
-const logger = require('../../logging/logger');
 
 class SubscriptionStore
 {
@@ -58,31 +57,38 @@ class SubscriptionStore
             {
                 subscriptions = _.map(rows, (currentRow) =>
                 {
-                    let matchedTopic = _.find(topics, (currentTopic) =>
+                    let matchedTopic = topics.find((currentTopic) =>
                     {
                         return currentRow.topicId === currentTopic.get('topicId');
                     });
+
+                    if(!matchedTopic)
+                    {
+                        matchedTopic = null;
+                    }
 
                     return this._deserialize(_.extend({
                         topic: matchedTopic
                     }, currentRow));
                 });
 
-                return subscriptions;
+                return new Immutable.List(subscriptions);
             });
         }
         else
         {
-            return subscriptions;
+            return new Immutable.List(subscriptions);
         }
     }
 
     create(subscription, tx)
     {
+        let timestamp = moment.utc();
+
         subscription = subscription.merge({
             subscriptionId: uuid.v4(),
-            createdAt: moment.utc(),
-            updatedAt: moment.utc()
+            createdAt: timestamp,
+            updatedAt: timestamp
         });
 
         let serializedData = this._serialize(subscription);
@@ -103,9 +109,11 @@ class SubscriptionStore
 
     deactivate(subscription, tx)
     {
+        let timestamp = moment.utc();
+
         subscription = subscription.merge({
             isActive: false,
-            updatedAt: moment.utc()
+            updatedAt: timestamp
         });
 
         let serializedData = this._serialize(subscription);
@@ -132,9 +140,11 @@ class SubscriptionStore
 
     reactivate(subscription, tx)
     {
+        let timestamp = moment.utc();
+
         subscription = subscription.merge({
             isActive: true,
-            updatedAt: moment.utc()
+            updatedAt: timestamp
         });
 
         let serializedData = this._serialize(subscription);
@@ -164,7 +174,7 @@ class SubscriptionStore
         return this.retrieveByIds([subscriptionId])
         .then((subscriptions) =>
         {
-            return subscriptions.length ? subscriptions[0] : null;
+            return subscriptions.size ? subscriptions.first() : null;
         });
     }
 
@@ -220,16 +230,16 @@ class SubscriptionStore
         })
         .then((subscriptions) =>
         {
-            return subscriptions.length ? subscriptions[0] : null;
+            return subscriptions.size ? subscriptions.first() : null;
         });
     }
 
     retrieveForTopic(topic, pageStart, pageSize)
     {
         return this.retrieveForTopics([topic.get('topicId')], pageStart, pageSize)
-        .then((messages) =>
+        .then((subscriptions) =>
         {
-            return messages.length ? messages[0] : null;
+            return subscriptions.size ? subscriptions.first() : null;
         });
     }
 
