@@ -37,8 +37,8 @@ function createMessagesTable(knex)
         table.uuid('messageId').primary();
         table.boolean('topicId').references('topicId').inTable(topicStore.TABLE_NAME);
         table.string('publisher', 256);
+        table.string('type', 256);
         table.string('body', 4096);
-        table.boolean('isActive');
         table.timestamp('createdAt');
         table.timestamp('updatedAt');
     });
