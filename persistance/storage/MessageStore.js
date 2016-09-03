@@ -222,67 +222,45 @@ class MessageStore
         });
     }
 
-    retrieveForTopicTillMessageId(topic, tillMessageId, pageSize)
+    retrieveForTopicTillMessageId(topic, tillMessage, pageSize)
     {
         if(!pageSize)
         {
             pageSize = 99999;
         }
 
-        return this.retrieveByIdForTopic(tillMessageId, topic)
-        .then((message) =>
+        return knex.select('*').from(this.TABLE_NAME)
+        .where('topicId', topic.get('topicId'))
+        .andWhere(function()
         {
-            if(message)
-            {
-                return knex.select('*').from(this.TABLE_NAME)
-                .where('topicId', topic.get('topicId'))
-                .andWhere(function()
-                {
-                    this.where('updatedAt', '<=', message.get('updatedAt').valueOf()).orWhere('messageId', tillMessageId);
-                })
-                .orderBy('updatedAt', 'desc')
-                .limit(pageSize)
-                .then((rows) =>
-                {
-                    return this._adaptDataStoreRows(rows);
-                });
-            }
-            else
-            {
-                return new Immutable.List([]);
-            }
+            this.where('updatedAt', '<=', tillMessage.get('updatedAt').valueOf()).orWhere('messageId', tillMessage.get('messageId'));
+        })
+        .orderBy('updatedAt', 'desc')
+        .limit(pageSize)
+        .then((rows) =>
+        {
+            return this._adaptDataStoreRows(rows);
         });
     }
 
-    retrieveForTopicSinceMessageId(topic, sinceMessageId, pageSize)
+    retrieveForTopicSinceMessageId(topic, sinceMessage, pageSize)
     {
         if(!pageSize)
         {
             pageSize = 99999;
         }
-
-        return this.retrieveByIdForTopic(sinceMessageId, topic)
-        .then((message) =>
+        
+        return knex.select('*').from(this.TABLE_NAME)
+        .where('topicId', topic.get('topicId'))
+        .andWhere(function()
         {
-            if(message)
-            {
-                return knex.select('*').from(this.TABLE_NAME)
-                .where('topicId', topic.get('topicId'))
-                .andWhere(function()
-                {
-                    this.where('updatedAt', '>=', message.get('updatedAt').valueOf()).orWhere('messageId', sinceMessageId);
-                })
-                .orderBy('updatedAt', 'desc')
-                .limit(pageSize)
-                .then((rows) =>
-                {
-                    return this._adaptDataStoreRows(rows);
-                });
-            }
-            else
-            {
-                return new Immutable.List([]);
-            }
+            this.where('updatedAt', '>=', sinceMessage.get('updatedAt').valueOf()).orWhere('messageId', sinceMessage.get('messageId'));
+        })
+        .orderBy('updatedAt', 'desc')
+        .limit(pageSize)
+        .then((rows) =>
+        {
+            return this._adaptDataStoreRows(rows);
         });
     }
 

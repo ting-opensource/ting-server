@@ -6,10 +6,11 @@ const moment = require('moment');
 const RetrieveTopicByNameCommand = require('../../commands/RetrieveTopicByNameCommand');
 const RetrieveTopicSubscriptionForSubscriberCommand = require('../../commands/RetrieveTopicSubscriptionForSubscriberCommand');
 const RetrieveMessagesForTopicCommand = require('../../commands/RetrieveMessagesForTopicCommand');
+const RetrieveMessageByIdForTopicCommand = require('../../commands/RetrieveMessageByIdForTopicCommand');
 const RetrieveMessagesForTopicTillTimeCommand = require('../../commands/RetrieveMessagesForTopicTillTimeCommand');
 const RetrieveMessagesForTopicSinceTimeCommand = require('../../commands/RetrieveMessagesForTopicSinceTimeCommand');
-const RetrieveMessagesForTopicTillMessageIdCommand = require('../../commands/RetrieveMessagesForTopicTillMessageIdCommand');
-const RetrieveMessagesForTopicSinceMessageIdCommand = require('../../commands/RetrieveMessagesForTopicSinceMessageIdCommand');
+const RetrieveMessagesForTopicTillMessageCommand = require('../../commands/RetrieveMessagesForTopicTillMessageCommand');
+const RetrieveMessagesForTopicSinceMessageCommand = require('../../commands/RetrieveMessagesForTopicSinceMessageCommand');
 
 module.exports = function(request, reply)
 {
@@ -53,25 +54,62 @@ module.exports = function(request, reply)
                 if(sinceTime)
                 {
                     retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicSinceTimeCommand(subscription.get('topic'), sinceTime);
+                    return retrieveMessagesForTopicCommand.execute();
                 }
                 else if(tillTime)
                 {
                     retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicTillTimeCommand(subscription.get('topic'), tillTime);
+                    return retrieveMessagesForTopicCommand.execute();
                 }
                 else if(sinceMessageId)
                 {
-                    retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicSinceMessageIdCommand(subscription.get('topic'), sinceMessageId);
+                    let retrieveMessageCommand = new RetrieveMessageByIdForTopicCommand(sinceMessageId, topic);
+
+                    return retrieveMessageCommand.execute()
+                    .then((message) =>
+                    {
+                        if(message)
+                        {
+                            retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicSinceMessageCommand(subscription.get('topic'), message);
+                            return retrieveMessagesForTopicCommand.execute();
+                        }
+                        else
+                        {
+                            return reply(Boom.notFound(`message with id ${sinceMessageId} is not found in ${topicName}`))
+                            .then(() =>
+                            {
+                                throw new Error('message not present');
+                            });
+                        }
+                    });
                 }
                 else if(tillMessageId)
                 {
-                    retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicTillMessageIdCommand(subscription.get('topic'), tillMessageId);
+                    let retrieveMessageCommand = new RetrieveMessageByIdForTopicCommand(tillMessageId, topic);
+                    
+                    return retrieveMessageCommand.execute()
+                    .then((message) =>
+                    {
+                        if(message)
+                        {
+                            retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicTillMessageCommand(subscription.get('topic'), message);
+                            return retrieveMessagesForTopicCommand.execute();
+                        }
+                        else
+                        {
+                            return reply(Boom.notFound(`message with id ${tillMessageId} is not found in ${topicName}`))
+                            .then(() =>
+                            {
+                                throw new Error('message not present');
+                            });
+                        }
+                    });
                 }
                 else
                 {
                     retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicCommand(subscription.get('topic'));
+                    return retrieveMessagesForTopicCommand.execute();
                 }
-
-                return retrieveMessagesForTopicCommand.execute();
             }
             else
             {
