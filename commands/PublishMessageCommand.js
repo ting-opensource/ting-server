@@ -2,7 +2,7 @@
 
 const messageStore = require('../persistance/storage/MessageStore');
 
-class CreateMessageCommand
+class PublishMessageCommand
 {
     constructor(message)
     {
@@ -21,4 +21,4 @@ class CreateMessageCommand
     }
 }
 
-module.exports = CreateMessageCommand;
+module.exports = PublishMessageCommand;

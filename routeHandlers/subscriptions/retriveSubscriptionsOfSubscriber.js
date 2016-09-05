@@ -1,6 +1,7 @@
 'use strict';
 
-const _ = require('lodash');
+const Boom = require('boom');
+
 const RetrieveSubscriptionsForSubscriberCommand = require('../../commands/RetrieveSubscriptionsForSubscriberCommand');
 
 module.exports = function(request, reply)
@@ -18,6 +19,17 @@ module.exports = function(request, reply)
         else
         {
             return reply([]);
+        }
+    })
+    .catch((error) =>
+    {
+        if(error.isBoom)
+        {
+            return reply(error);
+        }
+        else
+        {
+            return reply(Boom.wrap(error, 500));
         }
     });
 };

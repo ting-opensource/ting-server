@@ -20,5 +20,16 @@ module.exports = function(request, reply)
         {
             return reply(Boom.notFound(`topic with name ${topicName} not found`));
         }
+    })
+    .catch((error) =>
+    {
+        if(error.isBoom)
+        {
+            return reply(error);
+        }
+        else
+        {
+            return reply(Boom.wrap(error, 500));
+        }
     });
 };

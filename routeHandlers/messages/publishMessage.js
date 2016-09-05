@@ -2,12 +2,7 @@
 
 const Boom = require('boom');
 
-const Message = require('../../models/Message');
-const Topic = require('../../models/Topic');
-
-const RetrieveTopicByNameCommand = require('../../commands/RetrieveTopicByNameCommand');
-const CreateTopicCommand = require('../../commands/CreateTopicCommand');
-const PublishMessageCommand = require('../../commands/PublishMessageCommand');
+const PublishMessageForTopicNameCommand = require('../../commands/PublishMessageForTopicNameCommand');
 
 module.exports = function(request, reply)
 {
@@ -17,50 +12,21 @@ module.exports = function(request, reply)
     let messageType = request.payload.message.type;
     let messageBody = request.payload.message.body;
 
-    let retrieveTopicCommand = new RetrieveTopicByNameCommand(topicName);
-
-    return retrieveTopicCommand.execute()
-    .then((topic) =>
-    {
-        if(topic)
-        {
-            return topic;
-        }
-        else if(createTopicIfNotExist)
-        {
-            let topic = new Topic({
-                name: topicName,
-                isActive: true
-            });
-
-            let createTopicCommand = new CreateTopicCommand(topic);
-
-            return createTopicCommand.execute();
-        }
-        else
-        {
-            return reply(Boom.notFound(`topic ${topicName} not found`))
-            .then(() =>
-            {
-                throw new Error('topic not found');
-            });
-        }
-    })
-    .then((topic) =>
-    {
-        let message = new Message({
-            topic: topic,
-            publisher: publisher,
-            type: messageType,
-            body: messageBody
-        });
-
-        let publishMessageCommand = new PublishMessageCommand(message);
-
-        return publishMessageCommand.execute();
-    })
+    let command = new PublishMessageForTopicNameCommand(publisher, topicName, createTopicIfNotExist, messageBody, messageType);
+    return command.execute()
     .then((response) =>
     {
         return reply(response.toJS());
+    })
+    .catch((error) =>
+    {
+        if(error.isBoom)
+        {
+            return reply(error);
+        }
+        else
+        {
+            return reply(Boom.wrap(error, 500));
+        }
     });
 };
