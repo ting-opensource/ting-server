@@ -2,6 +2,7 @@
 
 const Boom = require('boom');
 
+const RetrieveTopicByNameCommand = require('./RetrieveTopicByNameCommand');
 const RetrieveTopicSubscriptionForSubscriberCommand = require('./RetrieveTopicSubscriptionForSubscriberCommand');
 const RetrieveMessagesForTopicCommand = require('./RetrieveMessagesForTopicCommand');
 const RetrieveMessageByIdForTopicCommand = require('./RetrieveMessageByIdForTopicCommand');
@@ -31,9 +32,21 @@ class RetrieveMessagesForTopicNameCommand
         let sinceMessageId = this._sinceMessageId;
         let tillMessageId = this._tillMessageId;
 
-        let retrieveSubscriptionCommand = new RetrieveTopicSubscriptionForSubscriberCommand(topicName, subscriber);
+        let retrieveTopicCommand = new RetrieveTopicByNameCommand(topicName);
 
-        return retrieveSubscriptionCommand.execute()
+        return retrieveTopicCommand.execute()
+        .then((topic) =>
+        {
+            if(topic)
+            {
+                let retrieveSubscriptionCommand = new RetrieveTopicSubscriptionForSubscriberCommand(topic, subscriber);
+                return retrieveSubscriptionCommand.execute();
+            }
+            else
+            {
+                throw Boom.notFound(`topic ${topicName} not found`);
+            }
+        })
         .then((subscription) =>
         {
             if(subscription && subscription.get('isActive'))
