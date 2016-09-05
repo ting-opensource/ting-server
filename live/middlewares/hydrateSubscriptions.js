@@ -2,8 +2,8 @@
 
 const _ = require('lodash');
 
+const liveConnectionFacade = require('../LiveConnectionFacade').getInstance();
 const RetrieveSubscriptionsForSubscriberCommand = require('../../commands/RetrieveSubscriptionsForSubscriberCommand');
-const RetrieveMessagesForTopicCommand = require('../../commands/RetrieveMessagesForTopicCommand');
 const logger = require('../../logging/logger');
 
 module.exports = function(socket, next)
@@ -15,7 +15,7 @@ module.exports = function(socket, next)
     return command.execute()
     .then((subscriptions) =>
     {
-        let subscribedActiveTopics = subscriptions
+        subscriptions
         .toSeq()
         .filter((datum) =>
         {
@@ -24,26 +24,10 @@ module.exports = function(socket, next)
         .map((datum) =>
         {
             return datum.get('topic');
-        }).toArray();
-
-        _.each(subscribedActiveTopics, (datum) =>
+        })
+        .forEach((datum) =>
         {
-            let topic = datum;
-            let room = `/topics/${topic.get('name')}`;
-            socket.join(room, () =>
-            {
-                let retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicCommand(topic);
-                retrieveMessagesForTopicCommand.execute()
-                .then((messages) =>
-                {
-                    messages
-                    .toSeq()
-                    .forEach((datum) =>
-                    {
-                        socket.emit('message', datum.toJS());
-                    });
-                });
-            });
+            liveConnectionFacade.subscribeToUpdatesForTopic(socket, datum);
         });
 
         next();

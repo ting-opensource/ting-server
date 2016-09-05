@@ -2,6 +2,8 @@
 
 const io = require('socket.io');
 
+const RetrieveMessagesForTopicCommand = require('../commands/RetrieveMessagesForTopicCommand');
+
 let _instance = null;
 let _transport = null;
 let _socketsMap = new Map();
@@ -68,6 +70,25 @@ class LiveConnectionFacade
         {
             return _socketsMap.delete(userId);
         }
+    }
+
+    subscribeToUpdatesForTopic(socket, topic)
+    {
+        let room = `/topics/${topic.get('name')}`;
+        socket.join(room, () =>
+        {
+            let retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicCommand(topic);
+            retrieveMessagesForTopicCommand.execute()
+            .then((messages) =>
+            {
+                messages
+                .toSeq()
+                .forEach((datum) =>
+                {
+                    socket.emit('message', datum.toJS());
+                });
+            });
+        });
     }
 }
 
