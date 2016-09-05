@@ -58,6 +58,16 @@ server.route({
     handler: require('./routeHandlers/heartbeat')
 });
 
+/********/
+/* AUTH */
+/********/
+
+server.route({
+    method: 'POST',
+    path: '/authorize',
+    handler: require('./routeHandlers/authorize')
+});
+
 /**********/
 /* TOPICS */
 /**********/
@@ -102,6 +112,10 @@ server.route({
     handler: require('./routeHandlers/subscriptions/retriveSubscriptionsOfSubscriber')
 });
 
+/************/
+/* MESSAGES */
+/************/
+
 server.route({
     method: 'POST',
     path: '/messages/publish',
@@ -126,6 +140,12 @@ storageFacade.migrateToLatest()
 {
     return server.register({
         register: require('scooter')
+    });
+})
+.then(() =>
+{
+    return server.register({
+        register: require('./live')
     });
 })
 .then(() =>
