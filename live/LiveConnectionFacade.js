@@ -4,10 +4,11 @@ const io = require('socket.io');
 
 let _instance = null;
 let _transport = null;
+let _socketsMap = new Map();
 
 class SingletonEnforcer {}
 
-class ConnectionManager
+class LiveConnectionFacade
 {
     constructor(enforcer)
     {
@@ -21,7 +22,7 @@ class ConnectionManager
     {
         if(!_instance)
         {
-            _instance = new ConnectionManager(new SingletonEnforcer());
+            _instance = new LiveConnectionFacade(new SingletonEnforcer());
         }
 
         return _instance;
@@ -39,14 +40,35 @@ class ConnectionManager
         });
 
         _transport.use(require('./middlewares/authorization'));
+        _transport.use(require('./middlewares/hydrateSubscriptions'));
 
         _transport.on('connection', require('./handlers/connection'));
     }
 
-    subscribe()
+    setSocketForUserId(userId, socket)
     {
+        _socketsMap.set(userId, socket);
+    }
 
+    getSocketForUserId(userId)
+    {
+        if(_socketsMap.has(userId))
+        {
+            return _socketsMap.get(userId);
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    deleteSocketForUserId(userId)
+    {
+        if(_socketsMap.has(userId))
+        {
+            return _socketsMap.delete(userId);
+        }
     }
 }
 
-module.exports = ConnectionManager;
+module.exports = LiveConnectionFacade;

@@ -4,6 +4,7 @@ const Boom = require('Boom');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 
+const liveConnectionFacade = require('../LiveConnectionFacade').getInstance();
 const logger = require('../../logging/logger');
 
 module.exports = function(socket, next)
@@ -24,6 +25,15 @@ module.exports = function(socket, next)
 
             let userId = payload.userId;
             logger.info(`User Identifier for Incoming Connection: ${userId}`);
+
+            socket.auth = {
+                isAuthenticated: true,
+                credentials: {
+                    userId: userId
+                }
+            };
+
+            liveConnectionFacade.setSocketForUserId(userId, socket);
 
             next();
         }

@@ -1,12 +1,10 @@
 'use strict';
 
-const ConnectionManager = require('./ConnectionManager');
+const liveConnectionFacade = require('./LiveConnectionFacade').getInstance();
 
 module.exports.register = function(server, options, next)
 {
-    let connectionManager = ConnectionManager.getInstance();
-
-    connectionManager.initializeWithServer(server.listener);
+    liveConnectionFacade.initializeWithServer(server.listener);
 
     next();
 };
