@@ -14,10 +14,10 @@ class CreateTopicCommand
         let topic = this._topic;
 
         return topicStore.create(topic)
-            .then(function(updatedTopic)
-            {
-                return updatedTopic;
-            });
+        .then(function(updatedTopic)
+        {
+            return updatedTopic;
+        });
     }
 }
 

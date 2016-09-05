@@ -2,9 +2,8 @@
 
 const Boom = require('boom');
 
-const Subscription = require('../models/Subscription');
-
 const RetrieveTopicByNameCommand = require('./RetrieveTopicByNameCommand');
+const RetrieveTopicSubscriptionForSubscriberCommand = require('./RetrieveTopicSubscriptionForSubscriberCommand');
 const DeactivateSubscriptionCommand = require('./DeactivateSubscriptionCommand');
 
 class UnsubscribeFromTopicCommand
@@ -31,21 +30,27 @@ class UnsubscribeFromTopicCommand
             }
             else
             {
-                throw Boom.notFound(`subscription for topic ${topicName} not found`);
+                throw Boom.notFound(`topic ${topicName} not found`);
             }
         })
         .then((topic) =>
         {
-            let subscription = new Subscription({
-                subscriber: subscriber,
-                topic: topic,
-                isActive: true,
-                isDurable: true
+            let retrieveSubscriptionCommand = new RetrieveTopicSubscriptionForSubscriberCommand(topic, subscriber);
+
+            return retrieveSubscriptionCommand.execute()
+            .then((subscription) =>
+            {
+                if(subscription)
+                {
+                    let deactivateSubscriptionCommand = new DeactivateSubscriptionCommand(subscription);
+
+                    return deactivateSubscriptionCommand.execute();
+                }
+                else
+                {
+                    throw Boom.notFound(`subscription for topic ${topicName} not found`);
+                }
             });
-
-            let deactivateSubscriptionCommand = new DeactivateSubscriptionCommand(subscription);
-
-            return deactivateSubscriptionCommand.execute();
         });
     }
 }
