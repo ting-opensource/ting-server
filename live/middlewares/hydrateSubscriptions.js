@@ -27,7 +27,7 @@ module.exports = function(socket, next)
         })
         .forEach((datum) =>
         {
-            liveConnectionFacade.subscribeToUpdatesForTopic(socket, datum);
+            liveConnectionFacade.subscribeToUpdatesForTopicBySocket(socket, datum);
         });
 
         next();

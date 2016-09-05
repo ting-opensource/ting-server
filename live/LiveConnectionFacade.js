@@ -1,12 +1,12 @@
 'use strict';
 
 const io = require('socket.io');
+const _ = require('lodash');
 
 const RetrieveMessagesForTopicCommand = require('../commands/RetrieveMessagesForTopicCommand');
 
 let _instance = null;
 let _transport = null;
-let _socketsMap = new Map();
 
 class SingletonEnforcer {}
 
@@ -47,36 +47,40 @@ class LiveConnectionFacade
         _transport.on('connection', require('./handlers/connection'));
     }
 
-    setSocketForUserId(userId, socket)
+    getRoomNameForUserId(userId)
     {
-        _socketsMap.set(userId, socket);
+        return `/user/${userId}`;
     }
 
-    getSocketForUserId(userId)
+    getRoomNameForTopic(topic)
     {
-        if(_socketsMap.has(userId))
-        {
-            return _socketsMap.get(userId);
-        }
-        else
-        {
-            return null;
-        }
+        return `/topics/${topic.get('name')}`;
     }
 
-    deleteSocketForUserId(userId)
+    getSocketsForUserId(userId)
     {
-        if(_socketsMap.has(userId))
+        let namespace = _transport.of('/');
+        let matchingSockets = _.filter(namespace.sockets, (datum) =>
         {
-            return _socketsMap.delete(userId);
-        }
+            if(datum.isAuthenticated)
+            {
+                return datum.auth.credentials.userId === userId;
+            }
+
+            return false;
+        });
+
+        return matchingSockets || [];
     }
 
-    subscribeToUpdatesForTopic(socket, topic)
+    subscribeToUpdatesForTopicBySocket(socket, topic)
     {
         let room = `/topics/${topic.get('name')}`;
         socket.join(room, () =>
         {
+            let roomForUserId = this.getRoomNameForUserId(socket.auth.credentials.userId);
+            _transport.to(roomForUserId).emit('subscription-live', topic.toJS());
+
             let retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicCommand(topic);
             retrieveMessagesForTopicCommand.execute()
             .then((messages) =>
@@ -89,6 +93,72 @@ class LiveConnectionFacade
                 });
             });
         });
+    }
+
+    subscribeToUpdatesForTopicByUserId(userId, topic)
+    {
+        let room = `/topics/${topic.get('name')}`;
+
+        let joinCallback = _.once(() =>
+        {
+            let roomForUserId = this.getRoomNameForUserId(userId);
+            _transport.to(roomForUserId).emit('subscription-live', topic.toJS());
+
+            let retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicCommand(topic);
+            retrieveMessagesForTopicCommand.execute()
+            .then((messages) =>
+            {
+                messages
+                .toSeq()
+                .forEach((datum) =>
+                {
+                    _transport.to(roomForUserId).emit('message', datum.toJS());
+                });
+            });
+        });
+
+        let socketsForSubscriber = this.getSocketsForUserId(userId);
+        _.forEach(socketsForSubscriber, (datum) =>
+        {
+            datum.join(room, joinCallback);
+        });
+    }
+
+    unsubscribeFromUpdatesForTopicBySocket(socket, topic)
+    {
+        let room = this.getRoomNameForTopic(topic);
+        socket.leave(room);
+
+        let roomForUserId = this.getRoomNameForUserId(socket.auth.credentials.userId);
+        _transport.to(roomForUserId).emit('subscription-off', topic.toJS());
+    }
+
+    unsubscribeFromUpdatesForTopicByUserId(userId, topic)
+    {
+        let room = this.getRoomNameForTopic(topic);
+
+        let socketsForSubscriber = this.getSocketsForUserId(userId);
+        _.forEach(socketsForSubscriber, (datum) =>
+        {
+            datum.leave(room);
+        });
+
+        let roomForUserId = this.getRoomNameForUserId(userId);
+        _transport.to(roomForUserId).emit('subscription-off', topic.toJS());
+    }
+
+    publishMessageForTopicBySocket(socket, topic, message)
+    {
+        let room = this.getRoomNameForTopic(topic);
+
+        socket.to(room).emit('message', message.toJS());
+    }
+
+    publishMessageForTopic(topic, message)
+    {
+        let room = this.getRoomNameForTopic(topic);
+
+        _transport.to(room).emit('message', message.toJS());
     }
 }
 

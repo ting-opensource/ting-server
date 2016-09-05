@@ -26,14 +26,14 @@ module.exports = function(socket, next)
             let userId = payload.userId;
             logger.info(`User Identifier for Incoming Connection: ${userId}`);
 
+            socket.isAuthenticated = true;
             socket.auth = {
-                isAuthenticated: true,
                 credentials: {
                     userId: userId
                 }
             };
 
-            liveConnectionFacade.setSocketForUserId(userId, socket);
+            socket.join(liveConnectionFacade.getRoomNameForUserId(userId));
 
             next();
         }

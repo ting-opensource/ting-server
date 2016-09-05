@@ -1,6 +1,9 @@
 'use strict';
 
+const _ = require('lodash');
+
 const subscriptionStore = require('../persistance/storage/SubscriptionStore');
+const liveConnectionFacade = require('../live/LiveConnectionFacade').getInstance();
 
 class ReactivateSubscriptionCommand
 {
@@ -14,10 +17,12 @@ class ReactivateSubscriptionCommand
         let subscription = this._subscription;
 
         return subscriptionStore.reactivate(subscription)
-            .then(function(updatedSubscription)
-            {
-                return updatedSubscription;
-            });
+        .then(function(updatedSubscription)
+        {
+            liveConnectionFacade.subscribeToUpdatesForTopicByUserId(updatedSubscription.get('subscriber'), updatedSubscription.get('topic'));
+
+            return updatedSubscription;
+        });
     }
 }
 
