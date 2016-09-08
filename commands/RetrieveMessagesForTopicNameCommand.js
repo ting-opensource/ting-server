@@ -65,7 +65,7 @@ class RetrieveMessagesForTopicNameCommand
                 }
                 else if(sinceMessageId)
                 {
-                    let retrieveMessageCommand = new RetrieveMessageByIdForTopicCommand(sinceMessageId, topicName);
+                    let retrieveMessageCommand = new RetrieveMessageByIdForTopicCommand(sinceMessageId, subscription.get('topic'));
 
                     return retrieveMessageCommand.execute()
                     .then((message) =>
@@ -83,7 +83,7 @@ class RetrieveMessagesForTopicNameCommand
                 }
                 else if(tillMessageId)
                 {
-                    let retrieveMessageCommand = new RetrieveMessageByIdForTopicCommand(tillMessageId, topicName);
+                    let retrieveMessageCommand = new RetrieveMessageByIdForTopicCommand(tillMessageId, subscription.get('topic'));
 
                     return retrieveMessageCommand.execute()
                     .then((message) =>
