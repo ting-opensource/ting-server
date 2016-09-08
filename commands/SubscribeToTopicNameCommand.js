@@ -39,7 +39,9 @@ class SubscribeToTopicCommand
             {
                 let topic = new Topic({
                     name: topicName,
-                    isActive: true
+                    isActive: true,
+                    createdBy: subscriber,
+                    updatedBy: subscriber
                 });
 
                 let createTopicCommand = new CreateTopicCommand(topic);

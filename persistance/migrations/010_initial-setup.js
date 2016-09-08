@@ -11,7 +11,9 @@ function createTopicsTable(knex)
         table.uuid('topicId').primary();
         table.string('name', 1024);
         table.boolean('isActive');
+        table.string('createdBy', 256);
         table.timestamp('createdAt');
+        table.string('updatedBy', 256);
         table.timestamp('updatedAt');
     });
 }

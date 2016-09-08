@@ -41,7 +41,9 @@ class PublishMessageForTopicNameCommand
             {
                 let topic = new Topic({
                     name: topicName,
-                    isActive: true
+                    isActive: true,
+                    createdBy: publisher,
+                    updatedBy: publisher
                 });
 
                 let createTopicCommand = new CreateTopicCommand(topic);

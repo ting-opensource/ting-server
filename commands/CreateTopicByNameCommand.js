@@ -8,14 +8,16 @@ const CreateTopicCommand = require('./CreateTopicCommand');
 
 class CreateTopicByNameCommand
 {
-    constructor(topicName)
+    constructor(topicName, requestedBy)
     {
         this._topicName = topicName;
+        this._requestedBy = requestedBy;
     }
 
     execute()
     {
         let topicName = this._topicName;
+        let requestedBy = this._requestedBy;
 
         let retrieveTopicCommand = new RetrieveTopicByNameCommand(topicName);
 
@@ -30,6 +32,8 @@ class CreateTopicByNameCommand
             {
                 let topic = new Topic({
                     name: topicName,
+                    createdBy: requestedBy,
+                    updatedBy: requestedBy,
                     isActive: true
                 });
 
