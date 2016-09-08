@@ -7,8 +7,9 @@ const CreateTopicByNameCommand = require('../../commands/CreateTopicByNameComman
 module.exports = function(request, reply)
 {
     let name = request.payload.name;
+    let requestedBy = request.auth.credentials.userId;
 
-    let command = new CreateTopicByNameCommand(name);
+    let command = new CreateTopicByNameCommand(name, requestedBy);
     return command.execute()
     .then((response) =>
     {

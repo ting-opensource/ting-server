@@ -6,7 +6,7 @@ const RetrieveSubscriptionsForSubscriberCommand = require('../../commands/Retrie
 
 module.exports = function(request, reply)
 {
-    let subscriber = request.query.subscriber;
+    let subscriber = request.auth.credentials.userId;
 
     let command = new RetrieveSubscriptionsForSubscriberCommand(subscriber);
     return command.execute()

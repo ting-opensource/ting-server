@@ -17,6 +17,7 @@
     "good-console": "^6.1.2",
     "good-squeeze": "^4.0.0",
     "hapi": "^15.0.3",
+    "hapi-auth-jwt": "^4.0.0",
     "immutable": "^3.8.1",
     "jsonwebtoken": "^7.1.9",
     "lodash": "^4.15.0",

@@ -6,7 +6,7 @@ const PublishMessageForTopicNameCommand = require('../../commands/PublishMessage
 
 module.exports = function(request, reply)
 {
-    let publisher = request.query.publisher;
+    let publisher = request.auth.credentials.userId;
     let topicName = request.payload.topic.name;
     let createTopicIfNotExist = request.payload.topic.createIfNotExist;
     let messageType = request.payload.message.type;

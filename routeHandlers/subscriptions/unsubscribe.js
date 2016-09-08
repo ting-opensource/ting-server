@@ -6,7 +6,7 @@ const UnsubscribeFromTopicNameCommand = require('../../commands/UnsubscribeFromT
 
 module.exports = function(request, reply)
 {
-    let subscriber = request.query.subscriber;
+    let subscriber = request.auth.credentials.userId;
     let topicName = request.payload.topic.name;
 
     let command = new UnsubscribeFromTopicNameCommand(subscriber, topicName);

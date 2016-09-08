@@ -68,65 +68,6 @@ server.route({
     handler: require('./routeHandlers/authorize')
 });
 
-/**********/
-/* TOPICS */
-/**********/
-
-server.route({
-    method: 'POST',
-    path: '/topics',
-    handler: require('./routeHandlers/topics/createTopic')
-});
-
-server.route({
-    method: 'GET',
-    path: '/topics/byname',
-    handler: require('./routeHandlers/topics/retrieveTopicByName')
-});
-
-server.route({
-    method: 'GET',
-    path: '/topics/byid',
-    handler: require('./routeHandlers/topics/retrieveTopicById')
-});
-
-/*****************/
-/* SUBSCRIPTIONS */
-/*****************/
-
-server.route({
-    method: 'POST',
-    path: '/subscribe',
-    handler: require('./routeHandlers/subscriptions/subscribe')
-});
-
-server.route({
-    method: 'POST',
-    path: '/unsubscribe',
-    handler: require('./routeHandlers/subscriptions/unsubscribe')
-});
-
-server.route({
-    method: 'GET',
-    path: '/subscriptions',
-    handler: require('./routeHandlers/subscriptions/retriveSubscriptionsOfSubscriber')
-});
-
-/************/
-/* MESSAGES */
-/************/
-
-server.route({
-    method: 'POST',
-    path: '/messages/publish',
-    handler: require('./routeHandlers/messages/publishMessage')
-});
-
-server.route({
-    method: 'GET',
-    path: '/messages',
-    handler: require('./routeHandlers/messages/retrieveMessagesForTopic')
-});
 
 storageFacade.migrateToLatest()
 .then(() =>
@@ -146,6 +87,121 @@ storageFacade.migrateToLatest()
 {
     return server.register({
         register: require('./live')
+    });
+})
+.then(() =>
+{
+    return server.register({
+        register: require('hapi-auth-jwt')
+    })
+    .then(() =>
+    {
+        let tokenValidator = function(request, decodedToken, callback)
+        {
+            let credentials = {
+                userId: decodedToken.userId
+            };
+
+            return callback(undefined, true, credentials);
+        };
+
+        return server.auth.strategy('token', 'jwt', {
+            key: config.get('auth').get('secret'),
+            validateFunc: tokenValidator,
+            verifyOptions: {
+                algorithms: ['HS256']
+            }
+        });
+    });
+})
+.then(() =>
+{
+    /*********************/
+    /* SETTING UP ROUTES */
+    /*********************/
+
+    /**********/
+    /* TOPICS */
+    /**********/
+
+    server.route({
+        method: 'POST',
+        path: '/topics',
+        config: {
+            auth: 'token'
+        },
+        handler: require('./routeHandlers/topics/createTopic')
+    });
+
+    server.route({
+        method: 'GET',
+        path: '/topics/byname',
+        config: {
+            auth: 'token'
+        },
+        handler: require('./routeHandlers/topics/retrieveTopicByName')
+    });
+
+    server.route({
+        method: 'GET',
+        path: '/topics/byid',
+        config: {
+            auth: 'token'
+        },
+        handler: require('./routeHandlers/topics/retrieveTopicById')
+    });
+
+    /*****************/
+    /* SUBSCRIPTIONS */
+    /*****************/
+
+    server.route({
+        method: 'POST',
+        path: '/subscribe',
+        config: {
+            auth: 'token'
+        },
+        handler: require('./routeHandlers/subscriptions/subscribe')
+    });
+
+    server.route({
+        method: 'POST',
+        path: '/unsubscribe',
+        config: {
+            auth: 'token'
+        },
+        handler: require('./routeHandlers/subscriptions/unsubscribe')
+    });
+
+    server.route({
+        method: 'GET',
+        path: '/subscriptions',
+        config: {
+            auth: 'token'
+        },
+        handler: require('./routeHandlers/subscriptions/retriveSubscriptionsOfSubscriber')
+    });
+
+    /************/
+    /* MESSAGES */
+    /************/
+
+    server.route({
+        method: 'POST',
+        path: '/messages/publish',
+        config: {
+            auth: 'token'
+        },
+        handler: require('./routeHandlers/messages/publishMessage')
+    });
+
+    server.route({
+        method: 'GET',
+        path: '/messages',
+        config: {
+            auth: 'token'
+        },
+        handler: require('./routeHandlers/messages/retrieveMessagesForTopic')
     });
 })
 .then(() =>

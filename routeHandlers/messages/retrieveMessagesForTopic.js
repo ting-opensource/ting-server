@@ -7,7 +7,7 @@ const RetrieveMessagesForTopicNameCommand = require('../../commands/RetrieveMess
 
 module.exports = function(request, reply)
 {
-    let subscriber = request.query.subscriber;
+    let subscriber = request.auth.credentials.userId;
     let topicName = request.query.topic;
 
     let tillTime = request.query.tillTime ? moment.utc(request.query.tillTime, moment.ISO_8601) : null;

@@ -6,7 +6,7 @@ const SubscribeToTopicNameCommand = require('../../commands/SubscribeToTopicName
 
 module.exports = function(request, reply)
 {
-    let subscriber = request.query.subscriber;
+    let subscriber = request.auth.credentials.userId;
     let topicName = request.payload.topic.name;
     let createTopicIfNotExist = request.payload.topic.createIfNotExist;
 
