@@ -222,7 +222,7 @@ class MessageStore
         });
     }
 
-    retrieveForTopicTillMessageId(topic, tillMessage, pageSize)
+    retrieveForTopicTillMessage(topic, tillMessage, pageSize)
     {
         if(!pageSize)
         {
@@ -243,13 +243,13 @@ class MessageStore
         });
     }
 
-    retrieveForTopicSinceMessageId(topic, sinceMessage, pageSize)
+    retrieveForTopicSinceMessage(topic, sinceMessage, pageSize)
     {
         if(!pageSize)
         {
             pageSize = 99999;
         }
-        
+
         return knex.select('*').from(this.TABLE_NAME)
         .where('topicId', topic.get('topicId'))
         .andWhere(function()

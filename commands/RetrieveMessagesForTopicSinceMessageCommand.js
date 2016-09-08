@@ -15,7 +15,7 @@ class RetrieveMessagesForTopicSinceMessageCommand
         let topic = this._topic;
         let sinceMessage = this._sinceMessage;
 
-        return messageStore.retrieveForTopicSinceMessageId(topic, sinceMessage);
+        return messageStore.retrieveForTopicSinceMessage(topic, sinceMessage);
     }
 }
 
