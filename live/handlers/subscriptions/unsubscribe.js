@@ -1,6 +1,6 @@
 'use strict';
 
-const UnsubscribeFromTopicNameCommand = require('../../commands/UnsubscribeFromTopicNameCommand');
+const UnsubscribeFromTopicNameCommand = require('../../../commands/UnsubscribeFromTopicNameCommand');
 
 module.exports = function(data)
 {

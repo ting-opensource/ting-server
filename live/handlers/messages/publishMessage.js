@@ -1,6 +1,6 @@
 'use strict';
 
-const PublishMessageForTopicNameCommand = require('../../commands/PublishMessageForTopicNameCommand');
+const PublishMessageForTopicNameCommand = require('../../../commands/PublishMessageForTopicNameCommand');
 
 module.exports = function(data)
 {

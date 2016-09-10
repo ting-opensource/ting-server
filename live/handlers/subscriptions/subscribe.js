@@ -1,6 +1,6 @@
 'use strict';
 
-const SubscribeToTopicNameCommand = require('../../commands/SubscribeToTopicNameCommand');
+const SubscribeToTopicNameCommand = require('../../../commands/SubscribeToTopicNameCommand');
 
 module.exports = function(data)
 {
