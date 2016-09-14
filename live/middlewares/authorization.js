@@ -33,9 +33,10 @@ module.exports = function(socket, next)
                 }
             };
 
-            socket.join(liveConnectionFacade.getRoomNameForUserId(userId));
-
-            next();
+            socket.join(liveConnectionFacade.getRoomNameForUserId(userId), () =>
+            {
+                next();
+            });
         }
         catch(error)
         {

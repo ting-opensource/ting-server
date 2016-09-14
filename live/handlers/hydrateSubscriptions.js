@@ -1,12 +1,10 @@
 'use strict';
 
-const _ = require('lodash');
-
 const liveConnectionFacade = require('../LiveConnectionFacade').getInstance();
 const RetrieveSubscriptionsForSubscriberCommand = require('../../commands/RetrieveSubscriptionsForSubscriberCommand');
 const logger = require('../../logging/logger');
 
-module.exports = function(socket, next)
+module.exports = function(socket)
 {
     let subscriber = socket.auth.credentials.userId;
     logger.info(`Hydrating Connections for Subscriber: ${subscriber}`);
@@ -29,11 +27,5 @@ module.exports = function(socket, next)
         {
             liveConnectionFacade.subscribeToUpdatesForTopicBySocket(socket, datum);
         });
-
-        next();
-    })
-    .catch((error) =>
-    {
-        next(error);
     });
 };

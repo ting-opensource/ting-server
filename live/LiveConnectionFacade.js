@@ -42,9 +42,8 @@ class LiveConnectionFacade
         });
 
         _transport.use(require('./middlewares/authorization'));
-        _transport.use(require('./middlewares/hydrateSubscriptions'));
 
-        _transport.on('connection', require('./handlers/connection'));
+        _transport.on('connect', require('./handlers/connect'));
     }
 
     getRoomNameForUserId(userId)
@@ -75,11 +74,10 @@ class LiveConnectionFacade
 
     subscribeToUpdatesForTopicBySocket(socket, topic)
     {
-        let room = `/topics/${topic.get('name')}`;
+        let room = this.getRoomNameForTopic(topic);
         socket.join(room, () =>
         {
-            let roomForUserId = this.getRoomNameForUserId(socket.auth.credentials.userId);
-            _transport.to(roomForUserId).emit('subscription-live', topic.toJS());
+            socket.emit('subscription-live', topic.toJS());
 
             let retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicCommand(topic);
             retrieveMessagesForTopicCommand.execute()
@@ -97,7 +95,7 @@ class LiveConnectionFacade
 
     subscribeToUpdatesForTopicByUserId(userId, topic)
     {
-        let room = `/topics/${topic.get('name')}`;
+        let room = this.getRoomNameForTopic(topic);
 
         let joinCallback = _.once(() =>
         {
@@ -129,8 +127,7 @@ class LiveConnectionFacade
         let room = this.getRoomNameForTopic(topic);
         socket.leave(room);
 
-        let roomForUserId = this.getRoomNameForUserId(socket.auth.credentials.userId);
-        _transport.to(roomForUserId).emit('subscription-off', topic.toJS());
+        socket.emit('subscription-off', topic.toJS());
     }
 
     unsubscribeFromUpdatesForTopicByUserId(userId, topic)
@@ -151,7 +148,7 @@ class LiveConnectionFacade
     {
         let room = this.getRoomNameForTopic(topic);
 
-        socket.to(room).emit('message', message.toJS());
+        socket.broadcast.to(room).emit('message', message.toJS());
     }
 
     publishMessageForTopic(topic, message)
