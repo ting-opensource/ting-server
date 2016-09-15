@@ -14,8 +14,10 @@ module.exports = function(request, reply)
     let sinceTime = request.query.sinceTime ? moment.utc(request.query.sinceTime, moment.ISO_8601) : null;
     let sinceMessageId = request.query.sinceMessageId;
     let tillMessageId = request.query.tillMessageId;
+    let pageStart = request.query.pageStart ? parseInt(request.query.pageStart) : undefined;
+    let pageSize = request.query.pageSize ? parseInt(request.query.pageSize) : undefined;
 
-    let command = new RetrieveMessagesForTopicNameCommand(subscriber, topicName, tillTime, sinceTime, sinceMessageId, tillMessageId);
+    let command = new RetrieveMessagesForTopicNameCommand(subscriber, topicName, tillTime, sinceTime, sinceMessageId, tillMessageId, pageStart, pageSize);
     return command.execute()
     .then((response) =>
     {

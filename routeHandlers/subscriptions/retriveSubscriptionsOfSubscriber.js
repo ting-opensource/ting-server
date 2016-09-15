@@ -7,8 +7,10 @@ const RetrieveSubscriptionsForSubscriberCommand = require('../../commands/Retrie
 module.exports = function(request, reply)
 {
     let subscriber = request.auth.credentials.userId;
+    let pageStart = request.query.pageStart ? parseInt(request.query.pageStart) : undefined;
+    let pageSize = request.query.pageSize ? parseInt(request.query.pageSize) : undefined;
 
-    let command = new RetrieveSubscriptionsForSubscriberCommand(subscriber);
+    let command = new RetrieveSubscriptionsForSubscriberCommand(subscriber, pageStart, pageSize);
     return command.execute()
     .then((response) =>
     {
