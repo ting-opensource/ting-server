@@ -79,7 +79,7 @@ class LiveConnectionFacade
         {
             socket.emit('subscription-live', topic.toJS());
 
-            let retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicCommand(topic);
+            let retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicCommand(topic, 0, 25);
             retrieveMessagesForTopicCommand.execute()
             .then((messages) =>
             {
