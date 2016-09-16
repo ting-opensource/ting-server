@@ -188,7 +188,7 @@ class MessageStore
 
         return knex.select('*').from(this.TABLE_NAME)
         .where('topicId', topic.get('topicId'))
-        .andWhere('updatedAt', '<=', tillTime.valueOf())
+        .andWhere('updatedAt', '<=', tillTime.toDate())
         .orderBy('updatedAt', 'desc')
         .offset(pageStart)
         .limit(pageSize)
@@ -212,7 +212,7 @@ class MessageStore
 
         return knex.select('*').from(this.TABLE_NAME)
         .where('topicId', topic.get('topicId'))
-        .andWhere('updatedAt', '>=', sinceTime.valueOf())
+        .andWhere('updatedAt', '>=', sinceTime.toDate())
         .orderBy('updatedAt', 'desc')
         .offset(pageStart)
         .limit(pageSize)
@@ -233,7 +233,7 @@ class MessageStore
         .where('topicId', topic.get('topicId'))
         .andWhere(function()
         {
-            this.where('updatedAt', '<=', tillMessage.get('updatedAt').valueOf()).orWhere('messageId', tillMessage.get('messageId'));
+            this.where('updatedAt', '<=', tillMessage.get('updatedAt').toDate()).orWhere('messageId', tillMessage.get('messageId'));
         })
         .orderBy('updatedAt', 'desc')
         .limit(pageSize)
@@ -254,7 +254,7 @@ class MessageStore
         .where('topicId', topic.get('topicId'))
         .andWhere(function()
         {
-            this.where('updatedAt', '>=', sinceMessage.get('updatedAt').valueOf()).orWhere('messageId', sinceMessage.get('messageId'));
+            this.where('updatedAt', '>=', sinceMessage.get('updatedAt').toDate()).orWhere('messageId', sinceMessage.get('messageId'));
         })
         .orderBy('updatedAt', 'desc')
         .limit(pageSize)

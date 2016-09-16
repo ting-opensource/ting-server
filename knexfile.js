@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-const config = require('config');
 
 const GENERAL_CONFIGS = {
     migrations: {
@@ -21,11 +20,12 @@ module.exports = {
     }, GENERAL_CONFIGS),
 
     staging: _.extend({
-        client: 'postgresql',
+        client: 'pg',
+        searchPath: 'public',
         connection: {
             database: 'ting',
-            user: 'username',
-            password: 'password'
+            user: 'postgres',
+            password: 'postgres'
         },
         pool: {
             min: 2,
@@ -34,11 +34,12 @@ module.exports = {
     }, GENERAL_CONFIGS),
 
     production: _.extend({
-        client: 'postgresql',
+        client: 'pg',
+        searchPath: 'public',
         connection: {
             database: 'ting',
-            user: 'username',
-            password: 'password'
+            user: 'postgres',
+            password: 'postgres'
         },
         pool: {
             min: 2,

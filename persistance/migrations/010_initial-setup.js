@@ -23,7 +23,7 @@ function createSubscriptionsTable(knex)
     return knex.schema.createTable(subscriptionStore.TABLE_NAME, function(table)
     {
         table.uuid('subscriptionId').primary();
-        table.boolean('topicId').references('topicId').inTable(topicStore.TABLE_NAME);
+        table.uuid('topicId').references('topicId').inTable(topicStore.TABLE_NAME);
         table.string('subscriber', 256);
         table.boolean('isDurable');
         table.boolean('isActive');
@@ -37,7 +37,7 @@ function createMessagesTable(knex)
     return knex.schema.createTable(messageStore.TABLE_NAME, function(table)
     {
         table.uuid('messageId').primary();
-        table.boolean('topicId').references('topicId').inTable(topicStore.TABLE_NAME);
+        table.uuid('topicId').references('topicId').inTable(topicStore.TABLE_NAME);
         table.string('publisher', 256);
         table.string('type', 256);
         table.string('body', 4096);
