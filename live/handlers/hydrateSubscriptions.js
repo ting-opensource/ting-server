@@ -17,7 +17,7 @@ module.exports = function(socket)
         .toSeq()
         .filter((datum) =>
         {
-            return datum.get('topic').get('isActive');
+            return datum.get('isActive') && datum.get('topic').get('isActive');
         })
         .map((datum) =>
         {
