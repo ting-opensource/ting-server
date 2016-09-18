@@ -1,7 +1,5 @@
 'use strict';
 
-const Promise = require('bluebird');
-
 const knexConfig = require('../knexfile.js');
 const knex = require('./knex');
 

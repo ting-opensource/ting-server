@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
+const config = require('config');
 
 const GENERAL_CONFIGS = {
     migrations: {
@@ -23,9 +24,11 @@ module.exports = {
         client: 'pg',
         searchPath: 'public',
         connection: {
-            database: 'ting',
-            user: 'postgres',
-            password: 'postgres'
+            host: config.get('dataStore').get('postgres').get('host'),
+            port: config.get('dataStore').get('postgres').get('port'),
+            database: config.get('dataStore').get('postgres').get('database'),
+            user: config.get('dataStore').get('postgres').get('user'),
+            password: config.get('dataStore').get('postgres').get('password')
         },
         pool: {
             min: 2,
@@ -37,13 +40,15 @@ module.exports = {
         client: 'pg',
         searchPath: 'public',
         connection: {
-            database: 'ting',
-            user: 'postgres',
-            password: 'postgres'
+            host: config.get('dataStore').get('postgres').get('host'),
+            port: config.get('dataStore').get('postgres').get('port'),
+            database: config.get('dataStore').get('postgres').get('database'),
+            user: config.get('dataStore').get('postgres').get('user'),
+            password: config.get('dataStore').get('postgres').get('password')
         },
         pool: {
             min: 2,
             max: 10
         }
-    })
+    }, GENERAL_CONFIGS)
 };

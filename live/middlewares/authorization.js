@@ -1,6 +1,6 @@
 'use strict';
 
-const Boom = require('Boom');
+const Boom = require('boom');
 const jwt = require('jsonwebtoken');
 const config = require('config');
 
