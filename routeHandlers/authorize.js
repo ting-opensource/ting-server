@@ -1,9 +1,8 @@
 'use strict';
 
 const Boom = require('boom');
-const moment = require('moment');
 
-const Authenticator = require('../auth/Authenticator');
+const AuthenticationCommand = require('../commands/AuthenticationCommand');
 
 module.exports = function(request, reply)
 {
@@ -14,10 +13,11 @@ module.exports = function(request, reply)
         return reply(Boom.badRequest('userId should be present as post data'));
     }
 
-    let token = Authenticator.generateToken(userId);
+    let command = new AuthenticationCommand(userId);
 
-    return reply({
-        token: token,
-        respondedAt: moment.utc()
+    return command.execute()
+    .then((response) =>
+    {
+        return reply(response);
     });
 };

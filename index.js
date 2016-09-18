@@ -1,6 +1,7 @@
 'use strict';
 
 const Hapi = require('hapi');
+const Boom = require('boom');
 const config = require('config');
 
 const storageFacade = require('./persistance/StorageFacade');
@@ -58,17 +59,6 @@ server.route({
     handler: require('./routeHandlers/heartbeat')
 });
 
-/********/
-/* AUTH */
-/********/
-
-server.route({
-    method: 'POST',
-    path: '/authorize',
-    handler: require('./routeHandlers/authorize')
-});
-
-
 storageFacade.migrateToLatest()
 .then(() =>
 {
@@ -87,6 +77,55 @@ storageFacade.migrateToLatest()
 {
     return server.register({
         register: require('./live')
+    });
+})
+.then(() =>
+{
+    return server.register({
+        register: require('hapi-auth-basic')
+    })
+    .then(() =>
+    {
+        let clientValidator = function(request, clientId, clientSecret, callback)
+        {
+            if(clientId !== config.get('auth').get('clientId'))
+            {
+                callback(Boom.unauthorized(`clientId did not match`), false);
+                return;
+            }
+
+            if(clientSecret !== config.get('auth').get('clientSecret'))
+            {
+                callback(Boom.unauthorized(`clientSecret did not match`), false);
+                return;
+            }
+
+            let clientCredentials = {
+                clientId: clientId,
+                clientSecret: clientSecret
+            };
+
+            return callback(undefined, true, clientCredentials);
+        };
+
+        return server.auth.strategy('simple', 'basic', {
+            validateFunc: clientValidator
+        });
+    });
+})
+.then(() =>
+{
+    /********/
+    /* AUTH */
+    /********/
+
+    server.route({
+        method: 'POST',
+        path: '/authorize',
+        config: {
+            auth: 'simple'
+        },
+        handler: require('./routeHandlers/authorize')
     });
 })
 .then(() =>
