@@ -2,8 +2,10 @@
 
 const Hapi = require('hapi');
 const Boom = require('boom');
+const Joi = require('joi');
 const config = require('config');
 
+const MessageTypes = require('./models/MessageTypes');
 const storageFacade = require('./persistance/StorageFacade');
 const logger = require('./logging/logger');
 
@@ -56,6 +58,13 @@ server.route({
 server.route({
     method: 'GET',
     path: '/heartbeat',
+    config: {
+        validate: {
+            query: {
+                requestId: Joi.string().required()
+            }
+        }
+    },
     handler: require('./routeHandlers/heartbeat')
 });
 
@@ -123,7 +132,12 @@ storageFacade.migrateToLatest()
         method: 'POST',
         path: '/authorize',
         config: {
-            auth: 'simple'
+            auth: 'simple',
+            validate: {
+                payload: Joi.object().keys({
+                    userId: Joi.string().max(255).required()
+                })
+            }
         },
         handler: require('./routeHandlers/authorize')
     });
@@ -167,7 +181,12 @@ storageFacade.migrateToLatest()
         method: 'POST',
         path: '/topics',
         config: {
-            auth: 'token'
+            auth: 'token',
+            validate: {
+                payload: Joi.object().keys({
+                    name: Joi.string().max(1023).required()
+                })
+            }
         },
         handler: require('./routeHandlers/topics/createTopic')
     });
@@ -176,7 +195,12 @@ storageFacade.migrateToLatest()
         method: 'GET',
         path: '/topics/byname',
         config: {
-            auth: 'token'
+            auth: 'token',
+            validate: {
+                query: {
+                    name: Joi.string().required()
+                }
+            }
         },
         handler: require('./routeHandlers/topics/retrieveTopicByName')
     });
@@ -185,7 +209,12 @@ storageFacade.migrateToLatest()
         method: 'GET',
         path: '/topics/byid',
         config: {
-            auth: 'token'
+            auth: 'token',
+            validate: {
+                query: {
+                    topicId: Joi.string().required()
+                }
+            }
         },
         handler: require('./routeHandlers/topics/retrieveTopicById')
     });
@@ -198,7 +227,15 @@ storageFacade.migrateToLatest()
         method: 'POST',
         path: '/subscribe',
         config: {
-            auth: 'token'
+            auth: 'token',
+            validate: {
+                payload: Joi.object().keys({
+                    topic: Joi.object().keys({
+                        name: Joi.string().max(1023).required(),
+                        createIfNotExist: Joi.boolean()
+                    })
+                })
+            }
         },
         handler: require('./routeHandlers/subscriptions/subscribe')
     });
@@ -207,7 +244,14 @@ storageFacade.migrateToLatest()
         method: 'POST',
         path: '/unsubscribe',
         config: {
-            auth: 'token'
+            auth: 'token',
+            validate: {
+                payload: Joi.object().keys({
+                    topic: Joi.object().keys({
+                        name: Joi.string().max(1023).required()
+                    })
+                })
+            }
         },
         handler: require('./routeHandlers/subscriptions/unsubscribe')
     });
@@ -216,7 +260,13 @@ storageFacade.migrateToLatest()
         method: 'GET',
         path: '/subscriptions',
         config: {
-            auth: 'token'
+            auth: 'token',
+            validate: {
+                query: {
+                    pageStart: Joi.number().min(0),
+                    pageSize: Joi.number().positive().min(1).max(9999)
+                }
+            }
         },
         handler: require('./routeHandlers/subscriptions/retriveSubscriptionsOfSubscriber')
     });
@@ -229,7 +279,19 @@ storageFacade.migrateToLatest()
         method: 'POST',
         path: '/messages/publish',
         config: {
-            auth: 'token'
+            auth: 'token',
+            validate: {
+                payload: Joi.object().keys({
+                    topic: Joi.object().keys({
+                        name: Joi.string().max(1023).required(),
+                        createIfNotExist: Joi.boolean()
+                    }),
+                    message: Joi.object().keys({
+                        type: [Joi.equal(MessageTypes.TEXT), Joi.equal(MessageTypes.HTML), Joi.equal(MessageTypes.JSON)],
+                        body: Joi.string().max(4096).required()
+                    })
+                })
+            }
         },
         handler: require('./routeHandlers/messages/publishMessage')
     });
@@ -238,7 +300,18 @@ storageFacade.migrateToLatest()
         method: 'GET',
         path: '/messages',
         config: {
-            auth: 'token'
+            auth: 'token',
+            validate: {
+                query: {
+                    topic: Joi.string().required(),
+                    sinceTime: Joi.date().iso(),
+                    tillTime: Joi.date().iso(),
+                    sinceMessageId: Joi.string(),
+                    tillMessageId: Joi.string(),
+                    pageStart: Joi.number().min(0),
+                    pageSize: Joi.number().positive().min(1).max(9999)
+                }
+            }
         },
         handler: require('./routeHandlers/messages/retrieveMessagesForTopic')
     });

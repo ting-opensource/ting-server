@@ -15,7 +15,7 @@ module.exports = {
     development: _.extend({
         client: 'sqlite3',
         connection: {
-            filename: './dev.sqlite3'
+            filename: config.get('dataStore').get('sqlite').get('filename')
         },
         useNullAsDefault: true
     }, GENERAL_CONFIGS),

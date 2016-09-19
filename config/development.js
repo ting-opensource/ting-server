@@ -1,7 +1,7 @@
 module.exports = {
     dataStore: {
         sqlite: {
-            filename: './stage.sqlite3'
+            filename: './dev.sqlite3'
         },
         postgres: {
             host: 'localhost',
