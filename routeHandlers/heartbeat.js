@@ -1,7 +1,6 @@
-"use strict";
+'use strict';
 
 const Boom = require('boom');
-const _ = require('lodash');
 const moment = require('moment');
 
 module.exports = function(request, reply)
@@ -17,4 +16,4 @@ module.exports = function(request, reply)
         requestId: requestId,
         respondedAt: moment.utc()
     });
-}
+};
