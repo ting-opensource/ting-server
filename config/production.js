@@ -12,6 +12,9 @@ if(POSTGRES_CF_SERVICE_NAME)
 
 module.exports = {
     dataStore: {
+        sqlite: {
+            filename: './prod.sqlite3'
+        },
         postgres: {
             host: postgresCredentials.host,
             port: postgresCredentials.port,
