@@ -329,3 +329,29 @@ storageFacade.migrateToLatest()
     logger.error(error);
     throw error;
 });
+
+process.on('uncaughtException', (error) =>
+{
+    logger.error('Uncaught Exception,');
+    logger.error(error);
+});
+
+process.on('unhandledRejection', (reason, promise) =>
+{
+    logger.error('Unhandled Rejection,');
+    logger.error(`Promise: ${promise}`);
+    logger.error(`Reason: ${reason}`);
+});
+
+process.on('exit', (code) =>
+{
+    logger.info(`Application is about to exit with code ${code}`);
+});
+
+process.on('warning', (warning) =>
+{
+    logger.warn('Got following Warning,');
+    logger.warn(warning.name);
+    logger.warn(warning.message);
+    logger.warn(warning.stack);
+});
