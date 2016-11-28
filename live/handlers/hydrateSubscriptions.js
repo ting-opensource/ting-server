@@ -27,5 +27,12 @@ module.exports = function(socket)
         {
             liveConnectionFacade.subscribeToUpdatesForTopicBySocket(socket, datum);
         });
+
+        logger.info(`Connections Hydration for Subscriber ${subscriber} done`);
+    })
+    .error((error) =>
+    {
+        logger.error(`Not able to hydrate connections for Subscriber: ${subscriber}`);
+        logger.error(error);
     });
 };
