@@ -7,7 +7,7 @@ const hydrateSubscriptions = require('./hydrateSubscriptions');
 
 module.exports = function(socket)
 {
-    logger.info(`New Live Connection: ${socket.id}`);
+    logger.info(`New Live Connection: ${socket.id} from ${socket.request.connection.remoteAddress}`);
 
     socket.on('disconnect', require('./disconnect'));
     socket.on('subscribe', require('./subscriptions/subscribe'));
