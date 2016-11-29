@@ -1,13 +1,14 @@
 'use strict';
 
-const messageStore = require('../persistance/storage/MessageStore');
+const messageWithReadReceiptStore = require('../persistance/storage/MessageWithReadReceiptStore');
 
 class RetrieveMessagesForTopicTillTimeCommand
 {
-    constructor(topic, tillTime, pageStart, pageSize)
+    constructor(topic, tillTime, subscriber, pageStart, pageSize)
     {
         this._topic = topic;
         this._tillTime = tillTime;
+        this._subscriber = subscriber;
         this._pageStart = pageStart;
         this._pageSize = pageSize;
     }
@@ -16,10 +17,11 @@ class RetrieveMessagesForTopicTillTimeCommand
     {
         let topic = this._topic;
         let tillTime = this._tillTime;
+        let subscriber = this._subscriber;
         let pageStart = this._pageStart;
         let pageSize = this._pageSize;
 
-        return messageStore.retrieveForTopicTillTime(topic, tillTime, pageStart, pageSize);
+        return messageWithReadReceiptStore.retrieveForTopicTillTime(topic, tillTime, subscriber, pageStart, pageSize);
     }
 }
 

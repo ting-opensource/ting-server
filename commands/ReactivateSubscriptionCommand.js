@@ -1,7 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
-
 const subscriptionStore = require('../persistance/storage/SubscriptionStore');
 const liveConnectionFacade = require('../live/LiveConnectionFacade').getInstance();
 

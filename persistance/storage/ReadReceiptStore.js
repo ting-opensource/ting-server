@@ -5,7 +5,7 @@ const moment = require('moment');
 const Immutable = require('immutable');
 
 const knex = require('../knex');
-const ReadReceipt = require('../../models/ReadReceipt');
+const ReadReceipt = require('../../models/ReadReceipt').default;
 
 class ReadReceiptStore
 {

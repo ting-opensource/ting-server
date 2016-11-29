@@ -2,13 +2,16 @@
 
 const Immutable = require('immutable');
 
-class ReadReceipt extends Immutable.Record({
+let defaultRecord = {
     messageId: null, /* Message */
     subscriber: '',
     createdAt: null, /* Moment */
     updatedAt: null /* Moment */
-})
+};
+
+class ReadReceipt extends Immutable.Record(defaultRecord)
 {
 }
 
-module.exports = ReadReceipt;
+module.exports.defaultRecord = defaultRecord;
+module.exports.default = ReadReceipt;

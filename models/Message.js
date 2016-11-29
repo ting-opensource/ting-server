@@ -4,7 +4,7 @@ const Immutable = require('immutable');
 
 const MessageTypes = require('./MessageTypes');
 
-class Message extends Immutable.Record({
+let defaultRecord = {
     messageId: '',
     topic: null, /* Topic */
     publisher: '',
@@ -12,8 +12,11 @@ class Message extends Immutable.Record({
     body: '',
     createdAt: null, /* Moment */
     updatedAt: null /* Moment */
-})
+};
+
+class Message extends Immutable.Record(defaultRecord)
 {
 }
 
-module.exports = Message;
+module.exports.defaultRecord = defaultRecord;
+module.exports.default = Message;

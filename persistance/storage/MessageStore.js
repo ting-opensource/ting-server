@@ -6,7 +6,7 @@ const moment = require('moment');
 const Immutable = require('immutable');
 
 const knex = require('../knex');
-const Message = require('../../models/Message');
+const Message = require('../../models/Message').default;
 const topicStore = require('../../persistance/storage/TopicStore');
 
 class MessageStore
