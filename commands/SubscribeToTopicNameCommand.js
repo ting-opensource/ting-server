@@ -2,8 +2,8 @@
 
 const Boom = require('boom');
 
-const Subscription = require('../models/Subscription');
-const Topic = require('../models/Topic');
+const Subscription = require('../models/Subscription').default;
+const Topic = require('../models/Topic').default;
 
 const RetrieveTopicByNameCommand = require('./RetrieveTopicByNameCommand');
 const RetrieveTopicSubscriptionForSubscriberCommand = require('./RetrieveTopicSubscriptionForSubscriberCommand');

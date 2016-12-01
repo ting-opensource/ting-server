@@ -17,6 +17,7 @@ module.exports = {
         connection: {
             filename: config.get('dataStore').get('sqlite').get('filename')
         },
+        debug: true,
         useNullAsDefault: true
     }, GENERAL_CONFIGS),
 

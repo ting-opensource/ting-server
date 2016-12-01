@@ -2,7 +2,7 @@
 
 const Immutable = require('immutable');
 
-class Topic extends Immutable.Record({
+let defaultRecord = {
     topicId: '',
     name: '',
     isActive: false,
@@ -10,8 +10,11 @@ class Topic extends Immutable.Record({
     createdAt: null, /* Moment */
     updatedBy: '',
     updatedAt: null /* Moment */
-})
+};
+
+class Topic extends Immutable.Record(defaultRecord)
 {
 }
 
-module.exports = Topic;
+module.exports.defaultRecord = defaultRecord;
+module.exports.default = Topic;

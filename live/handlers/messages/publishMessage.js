@@ -14,9 +14,9 @@ module.exports = function(data)
 
     let command = new PublishMessageForTopicNameCommand(publisher, topicName, createTopicIfNotExist, messageBody, messageType);
     return command.execute()
-    .then((message) =>
+    .then((response) =>
     {
-        socket.emit('publish-message-success', message.toJS());
+        socket.emit('publish-message-success', response.toJS());
     })
     .catch((error) =>
     {

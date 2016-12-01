@@ -315,6 +315,37 @@ storageFacade.migrateToLatest()
         },
         handler: require('./routeHandlers/messages/retrieveMessagesForTopic')
     });
+
+    /*****************/
+    /* READ RECEIPTS */
+    /*****************/
+
+    server.route({
+        method: 'PUT',
+        path: '/messages/{messageId}/read',
+        config: {
+            auth: 'token'
+        },
+        handler: require('./routeHandlers/messages/markMessageByIdAsRead')
+    });
+
+    server.route({
+        method: 'PUT',
+        path: '/messages/since/{sinceMessageId}/read',
+        config: {
+            auth: 'token'
+        },
+        handler: require('./routeHandlers/messages/markMessagesSinceMessageIdAsReadForTopic')
+    });
+
+    server.route({
+        method: 'PUT',
+        path: '/messages/till/{tillMessageId}/read',
+        config: {
+            auth: 'token'
+        },
+        handler: require('./routeHandlers/messages/markMessagesTillMessageIdAsReadForTopic')
+    });
 })
 .then(() =>
 {

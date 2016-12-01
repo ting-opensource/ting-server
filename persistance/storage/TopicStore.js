@@ -6,7 +6,7 @@ const moment = require('moment');
 const Immutable = require('immutable');
 
 const knex = require('../knex');
-const Topic = require('../../models/Topic');
+const Topic = require('../../models/Topic').default;
 
 class TopicStore
 {
