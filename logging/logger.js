@@ -11,10 +11,10 @@ var logger = new winston.Logger({
         error: 'red'
     },
     transports: [
-      new winston.transports.Console({
-          prettyPrint: true,
-          colorize: true
-      })
+        new winston.transports.Console({
+            prettyPrint: true,
+            colorize: true
+        })
     ]
 });
 

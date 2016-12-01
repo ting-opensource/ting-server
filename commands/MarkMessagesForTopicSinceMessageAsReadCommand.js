@@ -1,7 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
-
 const ReadReceipt = require('../models/ReadReceipt').default;
 
 const readReceiptStore = require('../persistance/storage/ReadReceiptStore');
