@@ -74,12 +74,14 @@ class LiveConnectionFacade
 
     subscribeToUpdatesForTopicBySocket(socket, topic)
     {
+        let subscriber = socket.auth.credentials.userId;
+
         let room = this.getRoomNameForTopic(topic);
         socket.join(room, () =>
         {
             socket.emit('subscription-live', topic.toJS());
 
-            let retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicCommand(topic, 0, 25);
+            let retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicCommand(topic, subscriber, 0, 25);
             retrieveMessagesForTopicCommand.execute()
             .then((messages) =>
             {
@@ -102,7 +104,7 @@ class LiveConnectionFacade
             let roomForUserId = this.getRoomNameForUserId(userId);
             _transport.to(roomForUserId).emit('subscription-live', topic.toJS());
 
-            let retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicCommand(topic);
+            let retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicCommand(topic, userId);
             retrieveMessagesForTopicCommand.execute()
             .then((messages) =>
             {
