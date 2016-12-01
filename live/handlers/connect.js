@@ -13,6 +13,9 @@ module.exports = function(socket)
     socket.on('subscribe', require('./subscriptions/subscribe'));
     socket.on('unsubscribe', require('./subscriptions/unsubscribe'));
     socket.on('messages/publish', require('./messages/publishMessage'));
+    socket.on('message/read', require('./messages/markMessageByIdAsRead'));
+    socket.on('messages/since/read', require('./messages/markMessagesSinceMessageIdAsReadForTopic'));
+    socket.on('messages/till/read', require('./messages/markMessagesTillMessageIdAsReadForTopic'));
 
     _.defer(() =>
     {
