@@ -1,6 +1,6 @@
 {
   "name": "ting-server",
-  "version": "0.1.0-alpha.4",
+  "version": "0.1.0-alpha.5",
   "description": "Durable and Realtime Messaging System primarily geared towards Web Apps",
   "main": "index.js",
   "scripts": {
