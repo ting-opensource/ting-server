@@ -6,7 +6,7 @@ const moment = require('moment');
 const Immutable = require('immutable');
 
 const knex = require('../knex');
-const Subscription = require('../../models/Subscription');
+const Subscription = require('../../models/Subscription').default;
 const topicStore = require('../../persistance/storage/TopicStore');
 
 class SubscriptionStore

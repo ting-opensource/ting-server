@@ -6,8 +6,9 @@ const moment = require('moment');
 const Immutable = require('immutable');
 
 const knex = require('../knex');
-const Message = require('../../models/Message');
+const Message = require('../../models/Message').default;
 const topicStore = require('../../persistance/storage/TopicStore');
+const readReceiptStore = require('../../persistance/storage/ReadReceiptStore');
 
 class MessageStore
 {
@@ -281,6 +282,54 @@ class MessageStore
         .orderBy('updatedAt', 'desc')
         .offset(pageStart)
         .limit(pageSize)
+        .then((rows) =>
+        {
+            return this._adaptDataStoreRows(rows);
+        });
+    }
+
+    retrieveUnreadMessagesForTopicSinceMessage(topic, sinceMessage, forSubscriber)
+    {
+        const tableName = this.TABLE_NAME;
+
+        return knex.select('*').from(this.TABLE_NAME)
+        .whereNotExists(function()
+        {
+            this.select('messageId').from(readReceiptStore.TABLE_NAME)
+            .whereRaw(`${tableName}.messageId = ${readReceiptStore.TABLE_NAME}.messageId`)
+            .andWhere(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', forSubscriber);
+        })
+        .where('topicId', topic.get('topicId'))
+        .andWhere(function()
+        {
+            this.where('updatedAt', '>=', sinceMessage.get('updatedAt').toDate())
+            .orWhere('messageId', sinceMessage.get('messageId'));
+        })
+        .orderBy('updatedAt', 'desc')
+        .then((rows) =>
+        {
+            return this._adaptDataStoreRows(rows);
+        });
+    }
+
+    retrieveUnreadMessagesForTopicTillMessage(topic, tillMessage, forSubscriber)
+    {
+        const tableName = this.TABLE_NAME;
+
+        return knex.select('*').from(this.TABLE_NAME)
+        .whereNotExists(function()
+        {
+            this.select('messageId').from(readReceiptStore.TABLE_NAME)
+            .whereRaw(`${tableName}.messageId = ${readReceiptStore.TABLE_NAME}.messageId`)
+            .andWhere(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', forSubscriber);
+        })
+        .where('topicId', topic.get('topicId'))
+        .andWhere(function()
+        {
+            this.where('updatedAt', '<=', tillMessage.get('updatedAt').toDate())
+            .orWhere('messageId', tillMessage.get('messageId'));
+        })
+        .orderBy('updatedAt', 'desc')
         .then((rows) =>
         {
             return this._adaptDataStoreRows(rows);

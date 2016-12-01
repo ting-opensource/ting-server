@@ -2,7 +2,7 @@
 
 const Boom = require('boom');
 
-const Topic = require('../models/Topic');
+const Topic = require('../models/Topic').default;
 const RetrieveTopicByNameCommand = require('./RetrieveTopicByNameCommand');
 const CreateTopicCommand = require('./CreateTopicCommand');
 

@@ -59,12 +59,12 @@ class RetrieveMessagesForTopicNameCommand
 
                 if(sinceTime)
                 {
-                    retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicSinceTimeCommand(subscription.get('topic'), sinceTime, pageStart, pageSize);
+                    retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicSinceTimeCommand(subscription.get('topic'), sinceTime, subscriber, pageStart, pageSize);
                     return retrieveMessagesForTopicCommand.execute();
                 }
                 else if(tillTime)
                 {
-                    retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicTillTimeCommand(subscription.get('topic'), tillTime, pageStart, pageSize);
+                    retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicTillTimeCommand(subscription.get('topic'), tillTime, subscriber, pageStart, pageSize);
                     return retrieveMessagesForTopicCommand.execute();
                 }
                 else if(sinceMessageId)
@@ -76,7 +76,7 @@ class RetrieveMessagesForTopicNameCommand
                     {
                         if(message)
                         {
-                            retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicSinceMessageCommand(subscription.get('topic'), message, pageStart, pageSize);
+                            retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicSinceMessageCommand(subscription.get('topic'), message, subscriber, pageStart, pageSize);
                             return retrieveMessagesForTopicCommand.execute();
                         }
                         else
@@ -94,7 +94,7 @@ class RetrieveMessagesForTopicNameCommand
                     {
                         if(message)
                         {
-                            retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicTillMessageCommand(subscription.get('topic'), message, pageStart, pageSize);
+                            retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicTillMessageCommand(subscription.get('topic'), message, subscriber, pageStart, pageSize);
                             return retrieveMessagesForTopicCommand.execute();
                         }
                         else
@@ -105,7 +105,7 @@ class RetrieveMessagesForTopicNameCommand
                 }
                 else
                 {
-                    retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicCommand(subscription.get('topic'), pageStart, pageSize);
+                    retrieveMessagesForTopicCommand = new RetrieveMessagesForTopicCommand(subscription.get('topic'), subscriber, pageStart, pageSize);
                     return retrieveMessagesForTopicCommand.execute();
                 }
             }
