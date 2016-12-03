@@ -159,6 +159,42 @@ class LiveConnectionFacade
 
         _transport.to(room).emit('message', message.toJS());
     }
+
+    publishReadReceiptForTopic(topic, readReceipt)
+    {
+        let room = this.getRoomNameForUserId(readReceipt.get('subscriber'));
+
+        let readReceiptForResponse = readReceipt.toJS();
+        readReceiptForResponse = _.chain(readReceiptForResponse)
+                      .omit('createdAt', 'updatedAt')
+                      .extend({
+                          readOn: readReceiptForResponse.updatedAt
+                      })
+                      .value();
+
+        _transport.to(room).emit('message-read', {
+            topic: topic.toJS(),
+            readReceipt: readReceiptForResponse
+        });
+    }
+
+    publishReadReceiptForTopicBySocket(socket, topic, readReceipt)
+    {
+        let room = this.getRoomNameForUserId(readReceipt.get('subscriber'));
+
+        let readReceiptForResponse = readReceipt.toJS();
+        readReceiptForResponse = _.chain(readReceiptForResponse)
+                      .omit('createdAt', 'updatedAt')
+                      .extend({
+                          readOn: readReceiptForResponse.updatedAt
+                      })
+                      .value();
+
+        _transport.to(room).emit('message-read', {
+            topic: topic.toJS(),
+            readReceipt: readReceiptForResponse
+        });
+    }
 }
 
 module.exports = LiveConnectionFacade;
