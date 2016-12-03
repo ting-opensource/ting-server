@@ -82,7 +82,7 @@ class MessageWithReadReceiptStore
         .leftJoin(readReceiptStore.TABLE_NAME, function()
         {
             this.on(`${messageStore.TABLE_NAME}.messageId`, '=', `${readReceiptStore.TABLE_NAME}.messageId`)
-            .andOn(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', subscriberForReadReceipt);
+            .andOn(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', knex.raw('?', [subscriberForReadReceipt]));
         })
         .whereIn(`${messageStore.TABLE_NAME}.messageId`, messageIds)
         .orderBy(`${messageStore.TABLE_NAME}.updatedAt`, 'desc')
@@ -110,7 +110,7 @@ class MessageWithReadReceiptStore
         .leftJoin(readReceiptStore.TABLE_NAME, function()
         {
             this.on(`${messageStore.TABLE_NAME}.messageId`, '=', `${readReceiptStore.TABLE_NAME}.messageId`)
-            .andOn(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', subscriberForReadReceipt);
+            .andOn(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', knex.raw('?', [subscriberForReadReceipt]));
         })
         .whereIn(`${messageStore.TABLE_NAME}.messageId`, messageIds)
         .andWhere(`${messageStore.TABLE_NAME}.topicId`, topic.get('topicId'))
@@ -140,7 +140,7 @@ class MessageWithReadReceiptStore
         .leftJoin(readReceiptStore.TABLE_NAME, function()
         {
             this.on(`${messageStore.TABLE_NAME}.messageId`, '=', `${readReceiptStore.TABLE_NAME}.messageId`)
-            .andOn(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', subscriberForReadReceipt);
+            .andOn(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', knex.raw('?', [subscriberForReadReceipt]));
         })
         .where(`${messageStore.TABLE_NAME}.topicId`, topic.get('topicId'))
         .andWhere(`${messageStore.TABLE_NAME}.updatedAt`, '<=', tillTime.toDate())
@@ -172,7 +172,7 @@ class MessageWithReadReceiptStore
         .leftJoin(readReceiptStore.TABLE_NAME, function()
         {
             this.on(`${messageStore.TABLE_NAME}.messageId`, '=', `${readReceiptStore.TABLE_NAME}.messageId`)
-            .andOn(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', subscriberForReadReceipt);
+            .andOn(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', knex.raw('?', [subscriberForReadReceipt]));
         })
         .where(`${messageStore.TABLE_NAME}.topicId`, topic.get('topicId'))
         .andWhere(`${messageStore.TABLE_NAME}.updatedAt`, '>=', sinceTime.toDate())
@@ -199,7 +199,7 @@ class MessageWithReadReceiptStore
         .leftJoin(readReceiptStore.TABLE_NAME, function()
         {
             this.on(`${messageStore.TABLE_NAME}.messageId`, '=', `${readReceiptStore.TABLE_NAME}.messageId`)
-            .andOn(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', subscriberForReadReceipt);
+            .andOn(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', knex.raw('?', [subscriberForReadReceipt]));
         })
         .where(`${messageStore.TABLE_NAME}.topicId`, topic.get('topicId'))
         .andWhere(function()
@@ -229,7 +229,7 @@ class MessageWithReadReceiptStore
         .leftJoin(readReceiptStore.TABLE_NAME, function()
         {
             this.on(`${messageStore.TABLE_NAME}.messageId`, '=', `${readReceiptStore.TABLE_NAME}.messageId`)
-            .andOn(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', subscriberForReadReceipt);
+            .andOn(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', knex.raw('?', [subscriberForReadReceipt]));
         })
         .where(`${messageStore.TABLE_NAME}.topicId`, topic.get('topicId'))
         .andWhere(function()
@@ -264,7 +264,7 @@ class MessageWithReadReceiptStore
         .leftJoin(readReceiptStore.TABLE_NAME, function()
         {
             this.on(`${messageStore.TABLE_NAME}.messageId`, '=', `${readReceiptStore.TABLE_NAME}.messageId`)
-            .andOn(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', subscriberForReadReceipt);
+            .andOn(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', knex.raw('?', [subscriberForReadReceipt]));
         })
         .where(`${messageStore.TABLE_NAME}.topicId`, topic.get('topicId'))
         .orderBy(`${messageStore.TABLE_NAME}.updatedAt`, 'desc')
