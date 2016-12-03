@@ -1,9 +1,11 @@
 'use strict';
 
-const ReadReceipt = require('../models/ReadReceipt').default;
+const _ = require('lodash');
 
+const ReadReceipt = require('../models/ReadReceipt').default;
 const readReceiptStore = require('../persistance/storage/ReadReceiptStore');
 const messageStore = require('../persistance/storage/MessageStore');
+const liveConnectionFacade = require('../live/LiveConnectionFacade').getInstance();
 
 class MarkMessagesForTopicSinceMessageIdAsReadCommand
 {
@@ -33,7 +35,16 @@ class MarkMessagesForTopicSinceMessageIdAsReadCommand
                     return readReceipt;
                 }).toList();
 
-                return readReceiptStore.createAll(readReceipts.toArray());
+                return readReceiptStore.createAll(readReceipts.toArray())
+                .then((updatedReadReceipts) =>
+                {
+                    _.forEach(updatedReadReceipts, (datum) =>
+                    {
+                        liveConnectionFacade.publishReadReceiptForTopic(sinceMessage.get('topic'), datum);
+                    });
+
+                    return updatedReadReceipts;
+                });
             }
             else
             {

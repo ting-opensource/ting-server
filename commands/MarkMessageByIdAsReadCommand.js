@@ -3,6 +3,7 @@
 const ReadReceipt = require('../models/ReadReceipt').default;
 
 const readReceiptStore = require('../persistance/storage/ReadReceiptStore');
+const liveConnectionFacade = require('../live/LiveConnectionFacade').getInstance();
 
 class MarkMessageByIdAsReadCommand
 {
@@ -27,7 +28,13 @@ class MarkMessageByIdAsReadCommand
                     subscriber: subscriber
                 });
 
-                return readReceiptStore.create(readReceipt);
+                return readReceiptStore.create(readReceipt)
+                .then((updatedReadReceipt) =>
+                {
+                    liveConnectionFacade.publishReadReceiptForTopic(message.get('topic'), updatedReadReceipt);
+
+                    return updatedReadReceipt;
+                });
             }
             else
             {
