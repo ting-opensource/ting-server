@@ -296,7 +296,7 @@ class MessageStore
         .whereNotExists(function()
         {
             this.select('messageId').from(readReceiptStore.TABLE_NAME)
-            .whereRaw(`${tableName}.messageId = ${readReceiptStore.TABLE_NAME}.messageId`)
+            .whereRaw(`"${tableName}"."messageId" = "${readReceiptStore.TABLE_NAME}"."messageId"`)
             .andWhere(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', forSubscriber);
         })
         .where('topicId', topic.get('topicId'))
@@ -320,7 +320,7 @@ class MessageStore
         .whereNotExists(function()
         {
             this.select('messageId').from(readReceiptStore.TABLE_NAME)
-            .whereRaw(`${tableName}.messageId = ${readReceiptStore.TABLE_NAME}.messageId`)
+            .whereRaw(`"${tableName}"."messageId" = "${readReceiptStore.TABLE_NAME}"."messageId"`)
             .andWhere(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', forSubscriber);
         })
         .where('topicId', topic.get('topicId'))

@@ -361,22 +361,19 @@ storageFacade.migrateToLatest()
     throw error;
 });
 
-process.on('uncaughtException', (error) =>
-{
-    logger.error('Uncaught Exception,');
-    logger.error(error);
-});
-
 process.on('unhandledRejection', (reason, promise) =>
 {
     logger.error('Unhandled Rejection,');
     logger.error(`Promise: ${promise}`);
     logger.error(`Reason: ${reason}`);
+
+    throw reason;
 });
 
-process.on('exit', (code) =>
+process.on('uncaughtException', (error) =>
 {
-    logger.info(`Application is about to exit with code ${code}`);
+    logger.error('Uncaught Exception,');
+    logger.error(error);
 });
 
 process.on('warning', (warning) =>
@@ -385,4 +382,9 @@ process.on('warning', (warning) =>
     logger.warn(warning.name);
     logger.warn(warning.message);
     logger.warn(warning.stack);
+});
+
+process.on('exit', (code) =>
+{
+    logger.info(`Application is about to exit with code ${code}`);
 });
