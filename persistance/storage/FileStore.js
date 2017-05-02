@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const config = require('config');
-const uuid = require('node-uuid');
+const uuid = require('uuid/v4');
 const Promise = require('bluebird');
 
 class FileStore

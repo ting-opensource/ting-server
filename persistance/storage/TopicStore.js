@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const uuid = require('node-uuid');
+const uuid = require('uuid/v4');
 const moment = require('moment');
 const Immutable = require('immutable');
 
