@@ -15,5 +15,10 @@ module.exports = {
             user: 'postgres',
             password: 'postgres'
         }
+    },
+    fileStorage: {
+        local: {
+            location: './dev.uploads'
+        }
     }
 };

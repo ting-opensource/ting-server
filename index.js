@@ -297,6 +297,25 @@ storageFacade.migrateToLatest()
     });
 
     server.route({
+        method: 'POST',
+        path: '/files/upload',
+        config: {
+            auth: 'token',
+            payload: {
+                output: 'stream',
+                parse: true,
+                allow: 'multipart/form-data'
+            },
+            validate: {
+                payload: {
+                    file: Joi.any().required()
+                }
+            }
+        },
+        handler: require('./routeHandlers/files/upload')
+    });
+
+    server.route({
         method: 'GET',
         path: '/messages',
         config: {
