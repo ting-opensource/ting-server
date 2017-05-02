@@ -85,7 +85,7 @@ class MessageStore
         let timestamp = moment.utc();
 
         message = message.merge({
-            messageId: uuid.v4(),
+            messageId: uuid(),
             createdAt: timestamp,
             updatedAt: timestamp
         });

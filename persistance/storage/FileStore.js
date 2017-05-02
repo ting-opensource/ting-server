@@ -12,7 +12,7 @@ class FileStore
         return new Promise((resolve, reject) =>
         {
             let originalFileName = filePayload.hapi.filename;
-            let uploadLocation = `${config.get('fileStorage').get('local').get('location')}/${uuid.v4()}`;
+            let uploadLocation = `${config.get('fileStorage').get('local').get('location')}/${uuid()}`;
             let savedFile = fs.createWriteStream(uploadLocation);
 
             savedFile.on('error', (error) =>

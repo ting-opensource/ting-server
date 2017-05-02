@@ -86,7 +86,7 @@ class SubscriptionStore
         let timestamp = moment.utc();
 
         subscription = subscription.merge({
-            subscriptionId: uuid.v4(),
+            subscriptionId: uuid(),
             createdAt: timestamp,
             updatedAt: timestamp
         });

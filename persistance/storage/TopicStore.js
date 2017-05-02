@@ -43,7 +43,7 @@ class TopicStore
         let timestamp = moment.utc();
 
         topic = topic.merge({
-            topicId: uuid.v4(),
+            topicId: uuid(),
             createdAt: timestamp,
             updatedAt: timestamp
         });
