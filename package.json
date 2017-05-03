@@ -14,6 +14,7 @@
   "license": "UNLICENCED",
   "dependencies": {
     "async": "^2.4.0",
+    "aws-sdk": "^2.48.0",
     "bluebird": "^3.5.0",
     "boom": "^4.3.1",
     "cfenv": "^1.0.4",

@@ -97,13 +97,13 @@ storageFacade.migrateToLatest()
     {
         let clientValidator = function(request, clientId, clientSecret, callback)
         {
-            if(clientId !== config.get('auth').get('clientId'))
+            if(clientId !== config.get('auth.clientId'))
             {
                 callback(Boom.unauthorized(`clientId did not match`), false);
                 return;
             }
 
-            if(clientSecret !== config.get('auth').get('clientSecret'))
+            if(clientSecret !== config.get('auth.clientSecret'))
             {
                 callback(Boom.unauthorized(`clientSecret did not match`), false);
                 return;
@@ -155,11 +155,11 @@ storageFacade.migrateToLatest()
                 userId: decodedToken.userId
             };
 
-            return callback(undefined, true, credentials);
+            return callback(null, true, credentials);
         };
 
         return server.auth.strategy('token', 'jwt', {
-            key: config.get('auth').get('secret'),
+            key: config.get('auth.secret'),
             validateFunc: tokenValidator,
             verifyOptions: {
                 algorithms: ['HS256']

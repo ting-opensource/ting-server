@@ -2,7 +2,7 @@
 
 const fileStore = require('../persistance/storage/FileStore');
 
-class UploadFileCommand
+class UploadFileLocallyCommand
 {
     constructor(filePayload)
     {
@@ -21,4 +21,4 @@ class UploadFileCommand
     }
 }
 
-module.exports = UploadFileCommand;
+module.exports = UploadFileLocallyCommand;

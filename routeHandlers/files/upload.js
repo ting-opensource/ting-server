@@ -2,7 +2,8 @@
 
 const Boom = require('boom');
 
-const UploadFileCommand = require('../../commands/UploadFileCommand');
+const UploadFileLocallyCommand = require('../../commands/UploadFileLocallyCommand');
+const UploadFileInBlobStoreCommand = require('../../commands/UploadFileInBlobStoreCommand');
 
 module.exports = function(request, reply)
 {
@@ -13,11 +14,15 @@ module.exports = function(request, reply)
         return reply(Boom.badRequest('file should be present as multipart-form post data'));
     }
 
-    let command = new UploadFileCommand(filePayload);
+    let command = new UploadFileInBlobStoreCommand(filePayload);
 
     return command.execute()
     .then((response) =>
     {
         return reply(response);
+    })
+    .catch((error) =>
+    {
+        console.error(error);
     });
 };
