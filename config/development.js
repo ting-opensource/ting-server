@@ -17,9 +17,9 @@ let postgresCredentials = {
 let blobStoreCredentials = {
     access_key_id: '',
     secret_access_key: '',
-    bucket_name: 'ting.stage',
-    host: '127.0.0.1',
-    url: '2977'
+    bucket_name: 'dev.uploads',
+    host: 'localhost:3573',
+    url: 'http://localhost:3573'
 };
 
 module.exports = {
@@ -47,6 +47,7 @@ module.exports = {
         blobStore: {
             accessKeyId: blobStoreCredentials.access_key_id,
             secretAccessKey: blobStoreCredentials.secret_access_key,
+            region: 'us-west-2',
             bucketName: blobStoreCredentials.bucket_name,
             host: blobStoreCredentials.host,
             url: blobStoreCredentials.url

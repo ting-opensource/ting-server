@@ -43,6 +43,7 @@ module.exports = {
         blobStore: {
             accessKeyId: blobStoreCredentials.access_key_id,
             secretAccessKey: blobStoreCredentials.secret_access_key,
+            region: 'us-west-2',
             bucketName: blobStoreCredentials.bucket_name,
             host: blobStoreCredentials.host,
             url: blobStoreCredentials.url
