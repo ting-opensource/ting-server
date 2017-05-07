@@ -114,7 +114,7 @@ storageFacade.migrateToLatest()
                 clientSecret: clientSecret
             };
 
-            return callback(undefined, true, clientCredentials);
+            return callback(null, true, clientCredentials);
         };
 
         return server.auth.strategy('simple', 'basic', {
@@ -308,7 +308,9 @@ storageFacade.migrateToLatest()
             },
             validate: {
                 payload: {
-                    file: Joi.any().required()
+                    file: Joi.any().required(),
+                    topicName: Joi.string().required(),
+                    createTopicIfNotExist: Joi.boolean().required()
                 }
             }
         },

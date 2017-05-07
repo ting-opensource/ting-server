@@ -1,7 +1,3 @@
-const cfenv = require('cfenv');
-
-const appEnv = cfenv.getAppEnv();
-
 const CLIENT_ID = '__TING_CLIENT_ID_FOR_DEV__';
 const CLIENT_SECRET = '__TING_CLIENT_SECRET_FOR_DEV__';
 const TOKEN_SIGNING_SECRET = '__TING_TOKEN_SIGNING_SECRET_FOR_DEV__';
@@ -18,8 +14,8 @@ let blobStoreCredentials = {
     access_key_id: '',
     secret_access_key: '',
     bucket_name: 'dev.uploads',
-    host: 'localhost:3573',
-    url: 'http://localhost:3573'
+    host: 'http://localhost:3573',
+    url: 'http://localhost:3573/dev.uploads'
 };
 
 module.exports = {

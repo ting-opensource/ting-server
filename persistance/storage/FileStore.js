@@ -5,6 +5,9 @@ const config = require('config');
 const uuid = require('uuid/v4');
 const Promise = require('bluebird');
 
+const FileMetadata = require('../../models/FileMetadata');
+const fileMetadataStore = require('./FileMetadataStore');
+
 class FileStore
 {
     create(filePayload)
@@ -12,7 +15,10 @@ class FileStore
         return new Promise((resolve, reject) =>
         {
             let originalFileName = filePayload.hapi.filename;
-            let uploadLocation = `${config.get('fileStorage.local.location')}/${uuid()}`;
+            let contentType = filePayload.hapi.headers['content-type'];
+            let uploadedFileName = `${uuid()}_file_${originalFileName}`;
+
+            let uploadLocation = `${config.get('fileStorage.local.location')}/${uploadedFileName}`;
             let savedFile = fs.createWriteStream(uploadLocation);
 
             savedFile.on('error', (error) =>
@@ -22,13 +28,21 @@ class FileStore
 
             filePayload.on('end', () =>
             {
-                resolve({
-                    filename: originalFileName,
-                    contentType: filePayload.hapi.headers['content-type']
+                let fileMetadata = new FileMetadata({
+                    key: uploadedFileName,
+                    originalName: originalFileName,
+                    contentType: contentType,
+                    storageType: 'LOCAL',
+                    url: ''
                 });
+                resolve(fileMetadata);
             });
 
             filePayload.pipe(savedFile);
+        })
+        .then((fileMetadata) =>
+        {
+            return fileMetadataStore.create(fileMetadata);
         });
     }
 }

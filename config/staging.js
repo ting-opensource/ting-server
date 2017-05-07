@@ -33,8 +33,8 @@ else
         access_key_id: '',
         secret_access_key: '',
         bucket_name: 'stage.uploads',
-        host: 'localhost:3573',
-        url: 'http://localhost:3573'
+        host: 'http://localhost:3573',
+        url: 'http://localhost:3573/stage.uploads'
     };
 }
 
