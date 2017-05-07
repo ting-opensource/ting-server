@@ -9,6 +9,7 @@ function createFileMetadataTable(knex)
         table.string('key', 256).primary();
         table.string('originalName', 1024);
         table.string('contentType');
+        table.string('storageType');
         table.timestamp('createdAt');
         table.timestamp('updatedAt');
     });

@@ -6,6 +6,7 @@ const uuid = require('uuid/v4');
 const Promise = require('bluebird');
 
 const FileMetadata = require('../../models/FileMetadata');
+const FileStorageTypes = require('../../models/FileStorageTypes');
 const fileMetadataStore = require('./FileMetadataStore');
 
 class FileStore
@@ -32,7 +33,7 @@ class FileStore
                     key: uploadedFileName,
                     originalName: originalFileName,
                     contentType: contentType,
-                    storageType: 'LOCAL',
+                    storageType: FileStorageTypes.LOCAL,
                     url: ''
                 });
                 resolve(fileMetadata);

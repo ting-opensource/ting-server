@@ -6,6 +6,7 @@ const uuid = require('uuid/v4');
 const aws = require('aws-sdk');
 
 const FileMetadata = require('../../models/FileMetadata');
+const FileStorageTypes = require('../../models/FileStorageTypes');
 const fileMetadataStore = require('./FileMetadataStore');
 
 class BlobStore
@@ -16,7 +17,7 @@ class BlobStore
         let contentType = filePayload.hapi.headers['content-type'];
         let uploadedFileName = `${uuid()}_file_${originalFileName}`;
 
-        let endpoint = new aws.Endpoint(config.get('fileStorage.blobStore.url'));
+        let endpoint = new aws.Endpoint(config.get('fileStorage.blobStore.host'));
 
         let s3 = new aws.S3({
             accessKeyId: config.get('fileStorage.blobStore.accessKeyId'),
@@ -40,7 +41,7 @@ class BlobStore
                 key: uploadedFileName,
                 originalName: originalFileName,
                 contentType: contentType,
-                storageType: 'BLOBSTORE',
+                storageType: FileStorageTypes.BLOBSTORE,
                 url: response.Location
             });
 

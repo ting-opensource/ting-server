@@ -6,6 +6,7 @@ let defaultRecord = {
     key: '',
     originalName: '',
     contentType: '',
+    storageType: '',
     url: '',
     createdAt: null, /* Moment */
     updatedAt: null /* Moment */

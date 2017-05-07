@@ -30,7 +30,7 @@ module.exports = function(request, reply)
     return uploadFileCommand.execute()
     .then((fileMetadata) =>
     {
-        let serializedFileMetadata = _.omit(fileMetadata.toJS(), 'url');
+        let serializedFileMetadata = _.omit(fileMetadata.toJS(), 'url', 'storageType');
         let messageBody = JSON.stringify(serializedFileMetadata);
         let messageType = MessageTypes.FILE;
 
