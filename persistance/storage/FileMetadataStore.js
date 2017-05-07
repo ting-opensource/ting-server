@@ -5,7 +5,7 @@ const moment = require('moment');
 const Immutable = require('immutable');
 
 const knex = require('../knex');
-const FileMetadata = require('../../models/FileMetadata').default;
+const FileMetadata = require('../../models/FileMetadata');
 
 class FileMetadataStore
 {

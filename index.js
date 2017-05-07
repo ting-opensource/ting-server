@@ -298,7 +298,7 @@ storageFacade.migrateToLatest()
 
     server.route({
         method: 'POST',
-        path: '/files/upload',
+        path: '/files',
         config: {
             auth: 'token',
             payload: {
@@ -315,6 +315,20 @@ storageFacade.migrateToLatest()
             }
         },
         handler: require('./routeHandlers/files/upload')
+    });
+
+    server.route({
+        method: 'GET',
+        path: '/files/{key}',
+        config: {
+            auth: 'token',
+            validate: {
+                params: {
+                    key: Joi.string().required()
+                }
+            }
+        },
+        handler: require('./routeHandlers/files/download')
     });
 
     server.route({

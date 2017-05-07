@@ -46,6 +46,16 @@ class FileStore
             return fileMetadataStore.create(fileMetadata);
         });
     }
+
+    retrieveByKey(key)
+    {
+        return Promise.try(() =>
+        {
+            let fileLocation = `${config.get('fileStorage.local.location')}/${key}`;
+
+            return fs.createReadStream(fileLocation);
+        });
+    }
 }
 
 module.exports = new FileStore();

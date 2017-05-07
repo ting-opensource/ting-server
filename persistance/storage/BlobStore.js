@@ -48,6 +48,27 @@ class BlobStore
             return fileMetadataStore.create(fileMetadata);
         });
     }
+
+    retrieveByKey(key)
+    {
+        return Promise.try(() =>
+        {
+            let endpoint = new aws.Endpoint(config.get('fileStorage.blobStore.host'));
+
+            let s3 = new aws.S3({
+                accessKeyId: config.get('fileStorage.blobStore.accessKeyId'),
+                secretAccessKey: config.get('fileStorage.blobStore.secretAccessKey'),
+                endpoint: endpoint
+            });
+
+            let s3DownloadParams = {
+                Bucket: config.get('fileStorage.blobStore.bucketName'),
+                Key: key
+            };
+
+            return s3.getObject(s3DownloadParams).createReadStream();
+        });
+    }
 }
 
 module.exports = new BlobStore();
