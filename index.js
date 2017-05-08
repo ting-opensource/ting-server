@@ -326,6 +326,26 @@ storageFacade.migrateToLatest()
         },
         handler: require('./routeHandlers/messages/markMessagesTillMessageIdAsReadForTopic')
     });
+
+    /******************/
+    /* ADMINISTRATION */
+    /******************/
+
+    server.route({
+        method: 'GET',
+        path: '/topic/subscriptions',
+        config: {
+            auth: 'client',
+            validate: {
+                query: {
+                    topic: Joi.string().required(),
+                    pageStart: Joi.number().min(0),
+                    pageSize: Joi.number().positive().min(1).max(9999)
+                }
+            }
+        },
+        handler: require('./routeHandlers/subscriptions/retrieveSubscriptionsOfTopic')
+    });
 })
 .then(() =>
 {
