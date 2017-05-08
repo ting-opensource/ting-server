@@ -1,11 +1,11 @@
 'use strict';
 
 const Hapi = require('hapi');
-const Boom = require('boom');
 const Joi = require('joi');
 const config = require('config');
 
 const MessageTypes = require('./models/MessageTypes');
+const AuthenticationFacade = require('./authentication/AuthenticationFacade');
 const storageFacade = require('./persistance/StorageFacade');
 const logger = require('./logging/logger');
 
@@ -90,37 +90,7 @@ storageFacade.migrateToLatest()
 })
 .then(() =>
 {
-    return server.register({
-        register: require('hapi-auth-basic')
-    })
-    .then(() =>
-    {
-        let clientValidator = function(request, clientId, clientSecret, callback)
-        {
-            if(clientId !== config.get('auth.clientId'))
-            {
-                callback(Boom.unauthorized(`clientId did not match`), false);
-                return;
-            }
-
-            if(clientSecret !== config.get('auth.clientSecret'))
-            {
-                callback(Boom.unauthorized(`clientSecret did not match`), false);
-                return;
-            }
-
-            let clientCredentials = {
-                clientId: clientId,
-                clientSecret: clientSecret
-            };
-
-            return callback(null, true, clientCredentials);
-        };
-
-        return server.auth.strategy('simple', 'basic', {
-            validateFunc: clientValidator
-        });
-    });
+    return AuthenticationFacade.configureAuthetnicationStrategies(server);
 })
 .then(() =>
 {
@@ -132,7 +102,7 @@ storageFacade.migrateToLatest()
         method: 'POST',
         path: '/authorize',
         config: {
-            auth: 'simple',
+            auth: 'client',
             validate: {
                 payload: Joi.object().keys({
                     userId: Joi.string().max(255).required()
@@ -140,31 +110,6 @@ storageFacade.migrateToLatest()
             }
         },
         handler: require('./routeHandlers/authorize')
-    });
-})
-.then(() =>
-{
-    return server.register({
-        register: require('hapi-auth-jwt')
-    })
-    .then(() =>
-    {
-        let tokenValidator = function(request, decodedToken, callback)
-        {
-            let credentials = {
-                userId: decodedToken.userId
-            };
-
-            return callback(null, true, credentials);
-        };
-
-        return server.auth.strategy('token', 'jwt', {
-            key: config.get('auth.secret'),
-            validateFunc: tokenValidator,
-            verifyOptions: {
-                algorithms: ['HS256']
-            }
-        });
     });
 })
 .then(() =>

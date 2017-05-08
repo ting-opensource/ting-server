@@ -3,7 +3,7 @@
 const moment = require('moment');
 const Promise = require('bluebird');
 
-const Authenticator = require('../auth/Authenticator');
+const AuthenticationFacade = require('../authentication/AuthenticationFacade');
 
 class AuthenticationCommand
 {
@@ -18,8 +18,11 @@ class AuthenticationCommand
 
         return Promise.try(function()
         {
-            let token = Authenticator.generateToken(userId);
+            let token = AuthenticationFacade.signJWTToken(userId);
+            let decodedToken = AuthenticationFacade.decodeJWTToken(token);
+
             return {
+                expiresAt: moment(decodedToken.exp * 1000),
                 token: token,
                 respondedAt: moment.utc()
             };
