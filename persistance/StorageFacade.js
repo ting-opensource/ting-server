@@ -1,6 +1,6 @@
 'use strict';
 
-const knexConfig = require('../knexfile.js');
+const knexConfig = require('../knexfile');
 const knex = require('./knex');
 
 class StorageFacade

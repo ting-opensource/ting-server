@@ -1,7 +1,7 @@
 'use strict';
 
 const _ = require('lodash');
-const uuid = require('node-uuid');
+const uuid = require('uuid/v4');
 const moment = require('moment');
 const Immutable = require('immutable');
 
@@ -85,7 +85,7 @@ class MessageStore
         let timestamp = moment.utc();
 
         message = message.merge({
-            messageId: uuid.v4(),
+            messageId: uuid(),
             createdAt: timestamp,
             updatedAt: timestamp
         });
@@ -296,7 +296,7 @@ class MessageStore
         .whereNotExists(function()
         {
             this.select('messageId').from(readReceiptStore.TABLE_NAME)
-            .whereRaw(`${tableName}.messageId = ${readReceiptStore.TABLE_NAME}.messageId`)
+            .whereRaw(`"${tableName}"."messageId" = "${readReceiptStore.TABLE_NAME}"."messageId"`)
             .andWhere(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', forSubscriber);
         })
         .where('topicId', topic.get('topicId'))
@@ -320,7 +320,7 @@ class MessageStore
         .whereNotExists(function()
         {
             this.select('messageId').from(readReceiptStore.TABLE_NAME)
-            .whereRaw(`${tableName}.messageId = ${readReceiptStore.TABLE_NAME}.messageId`)
+            .whereRaw(`"${tableName}"."messageId" = "${readReceiptStore.TABLE_NAME}"."messageId"`)
             .andWhere(`${readReceiptStore.TABLE_NAME}.subscriber`, '=', forSubscriber);
         })
         .where('topicId', topic.get('topicId'))

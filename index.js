@@ -97,13 +97,13 @@ storageFacade.migrateToLatest()
     {
         let clientValidator = function(request, clientId, clientSecret, callback)
         {
-            if(clientId !== config.get('auth').get('clientId'))
+            if(clientId !== config.get('auth.clientId'))
             {
                 callback(Boom.unauthorized(`clientId did not match`), false);
                 return;
             }
 
-            if(clientSecret !== config.get('auth').get('clientSecret'))
+            if(clientSecret !== config.get('auth.clientSecret'))
             {
                 callback(Boom.unauthorized(`clientSecret did not match`), false);
                 return;
@@ -114,7 +114,7 @@ storageFacade.migrateToLatest()
                 clientSecret: clientSecret
             };
 
-            return callback(undefined, true, clientCredentials);
+            return callback(null, true, clientCredentials);
         };
 
         return server.auth.strategy('simple', 'basic', {
@@ -155,11 +155,11 @@ storageFacade.migrateToLatest()
                 userId: decodedToken.userId
             };
 
-            return callback(undefined, true, credentials);
+            return callback(null, true, credentials);
         };
 
         return server.auth.strategy('token', 'jwt', {
-            key: config.get('auth').get('secret'),
+            key: config.get('auth.secret'),
             validateFunc: tokenValidator,
             verifyOptions: {
                 algorithms: ['HS256']
@@ -297,6 +297,41 @@ storageFacade.migrateToLatest()
     });
 
     server.route({
+        method: 'POST',
+        path: '/files',
+        config: {
+            auth: 'token',
+            payload: {
+                output: 'stream',
+                parse: true,
+                allow: 'multipart/form-data'
+            },
+            validate: {
+                payload: {
+                    file: Joi.any().required(),
+                    topicName: Joi.string().required(),
+                    createTopicIfNotExist: Joi.boolean().required()
+                }
+            }
+        },
+        handler: require('./routeHandlers/files/upload')
+    });
+
+    server.route({
+        method: 'GET',
+        path: '/files/{key}',
+        config: {
+            auth: 'token',
+            validate: {
+                params: {
+                    key: Joi.string().required()
+                }
+            }
+        },
+        handler: require('./routeHandlers/files/download')
+    });
+
+    server.route({
         method: 'GET',
         path: '/messages',
         config: {
@@ -361,22 +396,19 @@ storageFacade.migrateToLatest()
     throw error;
 });
 
-process.on('uncaughtException', (error) =>
-{
-    logger.error('Uncaught Exception,');
-    logger.error(error);
-});
-
 process.on('unhandledRejection', (reason, promise) =>
 {
     logger.error('Unhandled Rejection,');
     logger.error(`Promise: ${promise}`);
     logger.error(`Reason: ${reason}`);
+
+    throw reason;
 });
 
-process.on('exit', (code) =>
+process.on('uncaughtException', (error) =>
 {
-    logger.info(`Application is about to exit with code ${code}`);
+    logger.error('Uncaught Exception,');
+    logger.error(error);
 });
 
 process.on('warning', (warning) =>
@@ -385,4 +417,9 @@ process.on('warning', (warning) =>
     logger.warn(warning.name);
     logger.warn(warning.message);
     logger.warn(warning.stack);
+});
+
+process.on('exit', (code) =>
+{
+    logger.info(`Application is about to exit with code ${code}`);
 });

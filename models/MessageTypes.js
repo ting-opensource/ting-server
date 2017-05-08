@@ -16,6 +16,11 @@ class MessageTypes
     {
         return 'application/json';
     }
+
+    static get FILE()
+    {
+        return 'application/octet-stream';
+    }
 }
 
 module.exports = MessageTypes;

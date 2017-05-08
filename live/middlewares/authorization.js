@@ -43,7 +43,7 @@ module.exports = function(socket, next)
     {
         try
         {
-            let payload = jwt.verify(token, config.get('auth').get('secret'));
+            let payload = jwt.verify(token, config.get('auth.secret'));
 
             let userId = payload.userId;
             logger.info(`User Identifier for Incoming Connection: ${userId}`);
