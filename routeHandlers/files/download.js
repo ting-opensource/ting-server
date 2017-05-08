@@ -1,5 +1,7 @@
 'use strict';
 
+const Promise = require('bluebird');
+
 const FileStorageTypes = require('../../models/FileStorageTypes');
 const RetrieveFileMetadataByKeyCommand = require('../../commands/RetrieveFileMetadataByKeyCommand');
 const blobStore = require('../../persistance/storage/BlobStore');
@@ -19,7 +21,14 @@ module.exports = function(request, reply)
             return blobStore.retrieveByKey(fileMetadata.key)
             .then((fileStream) =>
             {
-                return reply(fileStream);
+                // wrapping fileStream around a promise to be able to set headers!
+                let fileStreamPromise = Promise.resolve(fileStream);
+
+                let response = reply(fileStreamPromise)
+                .header('Content-Type', fileMetadata.contentType ? fileMetadata.contentType : 'application/octet-stream')
+                .header('Content-Disposition', `attachment; filename=${fileMetadata.originalName}`);
+
+                return response;
             });
         }
         else if(fileMetadata.storageType === FileStorageTypes.LOCAL)
@@ -27,7 +36,14 @@ module.exports = function(request, reply)
             return fileStore.retrieveByKey(fileMetadata.key)
             .then((fileStream) =>
             {
-                return reply(fileStream);
+                // wrapping fileStream around a promise to be able to set headers!
+                let fileStreamPromise = Promise.resolve(fileStream);
+
+                let response = reply(fileStreamPromise)
+                .header('Content-Type', fileMetadata.contentType ? fileMetadata.contentType : 'application/octet-stream')
+                .header('Content-Disposition', `attachment; filename=${fileMetadata.originalName}`);
+
+                return response;
             });
         }
     });
