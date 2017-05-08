@@ -236,11 +236,7 @@ class SubscriptionStore
 
     retrieveForTopic(topic, pageStart, pageSize)
     {
-        return this.retrieveForTopics([topic.get('topicId')], pageStart, pageSize)
-        .then((subscriptions) =>
-        {
-            return subscriptions.size ? subscriptions.first() : null;
-        });
+        return this.retrieveForTopics([topic], pageStart, pageSize);
     }
 
     retrieveForTopics(topics, pageStart, pageSize)
