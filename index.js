@@ -97,13 +97,13 @@ storageFacade.migrateToLatest()
     {
         let clientValidator = function(request, clientId, clientSecret, callback)
         {
-            if(clientId !== config.get('auth').get('clientId'))
+            if(clientId !== config.get('auth.clientId'))
             {
                 callback(Boom.unauthorized(`clientId did not match`), false);
                 return;
             }
 
-            if(clientSecret !== config.get('auth').get('clientSecret'))
+            if(clientSecret !== config.get('auth.clientSecret'))
             {
                 callback(Boom.unauthorized(`clientSecret did not match`), false);
                 return;
@@ -114,7 +114,7 @@ storageFacade.migrateToLatest()
                 clientSecret: clientSecret
             };
 
-            return callback(undefined, true, clientCredentials);
+            return callback(null, true, clientCredentials);
         };
 
         return server.auth.strategy('simple', 'basic', {
@@ -155,11 +155,11 @@ storageFacade.migrateToLatest()
                 userId: decodedToken.userId
             };
 
-            return callback(undefined, true, credentials);
+            return callback(null, true, credentials);
         };
 
         return server.auth.strategy('token', 'jwt', {
-            key: config.get('auth').get('secret'),
+            key: config.get('auth.secret'),
             validateFunc: tokenValidator,
             verifyOptions: {
                 algorithms: ['HS256']
@@ -294,6 +294,41 @@ storageFacade.migrateToLatest()
             }
         },
         handler: require('./routeHandlers/messages/publishMessage')
+    });
+
+    server.route({
+        method: 'POST',
+        path: '/files',
+        config: {
+            auth: 'token',
+            payload: {
+                output: 'stream',
+                parse: true,
+                allow: 'multipart/form-data'
+            },
+            validate: {
+                payload: {
+                    file: Joi.any().required(),
+                    topicName: Joi.string().required(),
+                    createTopicIfNotExist: Joi.boolean().required()
+                }
+            }
+        },
+        handler: require('./routeHandlers/files/upload')
+    });
+
+    server.route({
+        method: 'GET',
+        path: '/files/{key}',
+        config: {
+            auth: 'token',
+            validate: {
+                params: {
+                    key: Joi.string().required()
+                }
+            }
+        },
+        handler: require('./routeHandlers/files/download')
     });
 
     server.route({
