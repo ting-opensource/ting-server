@@ -32,6 +32,7 @@ module.exports = {
             host: postgresCredentials.host,
             port: postgresCredentials.port,
             database: postgresCredentials.database,
+            schema: postgresCredentials.schema,
             user: postgresCredentials.username,
             password: postgresCredentials.password
         }

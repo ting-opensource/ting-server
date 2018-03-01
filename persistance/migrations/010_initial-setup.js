@@ -1,12 +1,14 @@
 'use strict';
 
+const config = require('config');
+
 const topicStore = require('../storage/TopicStore');
 const subscriptionStore = require('../storage/SubscriptionStore');
 const messageStore = require('../storage/MessageStore');
 
 function createTopicsTable(knex)
 {
-    return knex.schema.createTable(topicStore.TABLE_NAME, function(table)
+    return knex.schema.withSchema(config.get('dataStore').get('postgres').get('schema')).createTable(topicStore.TABLE_NAME, function(table)
     {
         table.uuid('topicId').primary();
         table.string('name', 1024);
@@ -20,7 +22,7 @@ function createTopicsTable(knex)
 
 function createSubscriptionsTable(knex)
 {
-    return knex.schema.createTable(subscriptionStore.TABLE_NAME, function(table)
+    return knex.schema.withSchema(config.get('dataStore').get('postgres').get('schema')).createTable(subscriptionStore.TABLE_NAME, function(table)
     {
         table.uuid('subscriptionId').primary();
         table.uuid('topicId').references('topicId').inTable(topicStore.TABLE_NAME);
@@ -34,7 +36,7 @@ function createSubscriptionsTable(knex)
 
 function createMessagesTable(knex)
 {
-    return knex.schema.createTable(messageStore.TABLE_NAME, function(table)
+    return knex.schema.withSchema(config.get('dataStore').get('postgres').get('schema')).createTable(messageStore.TABLE_NAME, function(table)
     {
         table.uuid('messageId').primary();
         table.uuid('topicId').references('topicId').inTable(topicStore.TABLE_NAME);

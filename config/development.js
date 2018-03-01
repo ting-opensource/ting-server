@@ -5,7 +5,8 @@ const TOKEN_SIGNING_SECRET = '__TING_TOKEN_SIGNING_SECRET_FOR_DEV__';
 let postgresCredentials = {
     host: 'localhost',
     port: 5432,
-    database: 'ting',
+    database: 'postgres',
+    schema: 'ting',
     username: 'postgres',
     password: 'postgres'
 };
@@ -32,6 +33,7 @@ module.exports = {
             host: postgresCredentials.host,
             port: postgresCredentials.port,
             database: postgresCredentials.database,
+            schema: postgresCredentials.schema,
             user: postgresCredentials.username,
             password: postgresCredentials.password
         }

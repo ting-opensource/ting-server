@@ -13,17 +13,25 @@ const GENERAL_CONFIGS = {
 module.exports = {
 
     development: _.extend({
-        client: 'sqlite3',
+        client: 'pg',
+        searchPath: config.get('dataStore').get('postgres').get('schema'),
         connection: {
-            filename: config.get('dataStore').get('sqlite').get('filename')
+            host: config.get('dataStore').get('postgres').get('host'),
+            port: config.get('dataStore').get('postgres').get('port'),
+            database: config.get('dataStore').get('postgres').get('database'),
+            user: config.get('dataStore').get('postgres').get('user'),
+            password: config.get('dataStore').get('postgres').get('password')
         },
-        debug: true,
-        useNullAsDefault: true
+        pool: {
+            min: 2,
+            max: 10
+        },
+        debug: true
     }, GENERAL_CONFIGS),
 
     staging: _.extend({
         client: 'pg',
-        searchPath: 'public',
+        searchPath: config.get('dataStore').get('postgres').get('schema'),
         connection: {
             host: config.get('dataStore').get('postgres').get('host'),
             port: config.get('dataStore').get('postgres').get('port'),
@@ -40,7 +48,7 @@ module.exports = {
 
     production: _.extend({
         client: 'pg',
-        searchPath: 'public',
+        searchPath: config.get('dataStore').get('postgres').get('schema'),
         connection: {
             host: config.get('dataStore').get('postgres').get('host'),
             port: config.get('dataStore').get('postgres').get('port'),

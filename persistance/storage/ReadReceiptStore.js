@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const moment = require('moment');
 const Immutable = require('immutable');
+const config = require('config');
 
 const knex = require('../knex');
 const ReadReceipt = require('../../models/ReadReceipt').default;
@@ -66,7 +67,7 @@ class ReadReceiptStore
 
         let serializedData = this._serialize(readReceipt);
 
-        let queryBuilder = knex.insert(serializedData).into(this.TABLE_NAME);
+        let queryBuilder = knex.withSchema(config.get('dataStore').get('postgres').get('schema')).insert(serializedData).into(this.TABLE_NAME);
 
         if(tx)
         {
@@ -97,7 +98,7 @@ class ReadReceiptStore
             return this._serialize(currentReadReceipt);
         });
 
-        let queryBuilder = knex.insert(serializedData).into(this.TABLE_NAME);
+        let queryBuilder = knex.withSchema(config.get('dataStore').get('postgres').get('schema')).insert(serializedData).into(this.TABLE_NAME);
 
         if(tx)
         {
@@ -137,7 +138,7 @@ class ReadReceiptStore
             return currentMessage.get('messageId');
         });
 
-        return knex.select('*').from(this.TABLE_NAME)
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).select('*').from(this.TABLE_NAME)
         .where({
             subscriber: subscriber
         })
@@ -177,7 +178,7 @@ class ReadReceiptStore
             return currentMessage.get('messageId');
         });
 
-        return knex.select('*').from(this.TABLE_NAME)
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).select('*').from(this.TABLE_NAME)
         .whereIn('messageId', messageIds)
         .offset(pageStart)
         .limit(pageSize)

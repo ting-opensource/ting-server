@@ -4,6 +4,7 @@ const _ = require('lodash');
 const uuid = require('uuid/v4');
 const moment = require('moment');
 const Immutable = require('immutable');
+const config = require('config');
 
 const knex = require('../knex');
 const Message = require('../../models/Message').default;
@@ -92,7 +93,7 @@ class MessageStore
 
         let serializedData = this._serialize(message);
 
-        let queryBuilder = knex.insert(serializedData).into(this.TABLE_NAME);
+        let queryBuilder = knex.withSchema(config.get('dataStore').get('postgres').get('schema')).insert(serializedData).into(this.TABLE_NAME);
 
         if(tx)
         {
@@ -117,7 +118,7 @@ class MessageStore
 
     retrieveByIds(messageIds)
     {
-        return knex.select('*').from(this.TABLE_NAME)
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).select('*').from(this.TABLE_NAME)
         .whereIn('messageId', messageIds)
         .orderBy('updatedAt', 'desc')
         .then((rows) =>
@@ -137,7 +138,7 @@ class MessageStore
 
     retrieveByIdsForTopic(messageIds, topic)
     {
-        return knex.select('*').from(this.TABLE_NAME)
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).select('*').from(this.TABLE_NAME)
         .whereIn('messageId', messageIds)
         .andWhere('topicId', topic.get('topicId'))
         .orderBy('updatedAt', 'desc')
@@ -164,7 +165,7 @@ class MessageStore
             pageSize = 99999;
         }
 
-        return knex.select('*').from(this.TABLE_NAME)
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).select('*').from(this.TABLE_NAME)
         .whereIn('publisher', publishers)
         .orderBy('updatedAt', 'desc')
         .offset(pageStart)
@@ -187,7 +188,7 @@ class MessageStore
             pageSize = 99999;
         }
 
-        return knex.select('*').from(this.TABLE_NAME)
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).select('*').from(this.TABLE_NAME)
         .where('topicId', topic.get('topicId'))
         .andWhere('updatedAt', '<=', tillTime.toDate())
         .orderBy('updatedAt', 'desc')
@@ -211,7 +212,7 @@ class MessageStore
             pageSize = 99999;
         }
 
-        return knex.select('*').from(this.TABLE_NAME)
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).select('*').from(this.TABLE_NAME)
         .where('topicId', topic.get('topicId'))
         .andWhere('updatedAt', '>=', sinceTime.toDate())
         .orderBy('updatedAt', 'desc')
@@ -230,7 +231,7 @@ class MessageStore
             pageSize = 99999;
         }
 
-        return knex.select('*').from(this.TABLE_NAME)
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).select('*').from(this.TABLE_NAME)
         .where('topicId', topic.get('topicId'))
         .andWhere(function()
         {
@@ -251,7 +252,7 @@ class MessageStore
             pageSize = 99999;
         }
 
-        return knex.select('*').from(this.TABLE_NAME)
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).select('*').from(this.TABLE_NAME)
         .where('topicId', topic.get('topicId'))
         .andWhere(function()
         {
@@ -277,7 +278,7 @@ class MessageStore
             pageSize = 99999;
         }
 
-        return knex.select('*').from(this.TABLE_NAME)
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).select('*').from(this.TABLE_NAME)
         .where('topicId', topic.get('topicId'))
         .orderBy('updatedAt', 'desc')
         .offset(pageStart)
@@ -292,7 +293,7 @@ class MessageStore
     {
         const tableName = this.TABLE_NAME;
 
-        return knex.select('*').from(this.TABLE_NAME)
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).select('*').from(this.TABLE_NAME)
         .whereNotExists(function()
         {
             this.select('messageId').from(readReceiptStore.TABLE_NAME)
@@ -316,7 +317,7 @@ class MessageStore
     {
         const tableName = this.TABLE_NAME;
 
-        return knex.select('*').from(this.TABLE_NAME)
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).select('*').from(this.TABLE_NAME)
         .whereNotExists(function()
         {
             this.select('messageId').from(readReceiptStore.TABLE_NAME)

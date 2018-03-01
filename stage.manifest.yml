@@ -1,0 +1,7 @@
+---
+applications:
+- name: ting-server-stage
+  buildpack: https://github.com/cloudfoundry/nodejs-buildpack
+memory: 1G
+env:
+  NODE_ENV: staging

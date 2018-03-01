@@ -1,0 +1,7 @@
+---
+applications:
+- name: ting-server
+  buildpack: https://github.com/cloudfoundry/nodejs-buildpack
+memory: 1G
+env:
+  NODE_ENV: production
