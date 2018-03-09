@@ -2,6 +2,8 @@
 applications:
 - name: ting-server
   buildpack: https://github.com/cloudfoundry/nodejs-buildpack
+  services:
+     - dcat-cups
 memory: 1G
 env:
   NODE_ENV: production

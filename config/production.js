@@ -1,15 +1,30 @@
 const cfenv = require('cfenv');
-
 const appEnv = cfenv.getAppEnv();
 
-const CLIENT_ID = process.env.CLIENT_ID || '__TING_CLIENT_ID__';
-const CLIENT_SECRET = process.env.CLIENT_SECRET || '__TING_CLIENT_SECRET__';
-const TOKEN_SIGNING_SECRET = process.env.TOKEN_SIGNING_SECRET || '__TING_TOKEN_SIGNING_SECRET__';
+let CLIENT_ID = '';
+let CLIENT_SECRET = '';
+let TOKEN_SIGNING_SECRET = '';
 
-let postgresCredentials = null;
-if(process.env.POSTGRES_CF_SERVICE_NAME)
+let postgresCredentials = {};
+
+if(process.env.VCAP_SERVICES)
 {
-    postgresCredentials = appEnv.getService(process.env.POSTGRES_CF_SERVICE_NAME).credentials;
+    const props = process.env.VCAP_SERVICES;
+    const propsJson = JSON.parse(props);
+    const cups = propsJson['user-provided'][0].credentials;
+
+    CLIENT_ID = cups['dcat.cups.notification.clientId'];
+    CLIENT_SECRET = cups['dcat.cups.notification.clientSecret'];
+    TOKEN_SIGNING_SECRET = cups['dcat.cups.notification.tokenSigningSecret'];
+
+    postgresCredentials = {
+        host: cups['dcat.cups.postgres.host'],
+        port: cups['dcat.cups.postgres.port'],
+        database: cups['dcat.cups.postgres.database'],
+        schema: cups['dcat.cups.postgres.notificationSchema'],
+        username: cups['dcat.cups.postgres.username'],
+        password: cups['dcat.cups.postgres.password']
+    };
 }
 
 let blobStoreCredentials = null;
