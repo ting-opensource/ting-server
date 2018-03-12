@@ -202,6 +202,25 @@ storageFacade.migrateToLatest()
     });
 
     server.route({
+        method: 'POST',
+        path: '/unsubscribe/topicforuser',
+        config: {
+            auth: 'token',
+            validate: {
+                payload: Joi.object().keys({
+                    topic: Joi.object().keys({
+                        name: Joi.string().max(1023).required()
+                    }),
+                    user: Joi.object().keys({
+                        userId: Joi.string().max(1023).required()
+                    })
+                })
+            }
+        },
+        handler: require('./routeHandlers/subscriptions/unsubscribeTopicForUser')
+    });
+
+    server.route({
         method: 'GET',
         path: '/subscriptions',
         config: {
