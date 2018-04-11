@@ -1,5 +1,3 @@
-const cfenv = require('cfenv');
-const appEnv = cfenv.getAppEnv();
 
 let CLIENT_ID = '';
 let CLIENT_SECRET = '';
@@ -27,11 +25,19 @@ if(process.env.VCAP_SERVICES)
     };
 }
 
-let blobStoreCredentials = null;
-if(process.env.BLOBSTORE_CF_SERVICE_NAME)
-{
-    blobStoreCredentials = appEnv.getService(process.env.BLOBSTORE_CF_SERVICE_NAME).credentials;
-}
+let blobStoreCredentials = {
+    access_key_id: '',
+    secret_access_key: '',
+    bucket_name: 'dev.uploads',
+    host: 'http://localhost:3573',
+    url: 'http://localhost:3573/dev.uploads'
+};
+
+// let blobStoreCredentials = null;
+// if(process.env.BLOBSTORE_CF_SERVICE_NAME)
+// {
+//     blobStoreCredentials = appEnv.getService(process.env.BLOBSTORE_CF_SERVICE_NAME).credentials;
+// }
 
 module.exports = {
     auth: {
