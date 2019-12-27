@@ -4,6 +4,7 @@ const _ = require('lodash');
 const uuid = require('uuid/v4');
 const moment = require('moment');
 const Immutable = require('immutable');
+const config = require('config');
 
 const knex = require('../knex');
 const Subscription = require('../../models/Subscription').default;
@@ -93,7 +94,7 @@ class SubscriptionStore
 
         let serializedData = this._serialize(subscription);
 
-        let queryBuilder = knex.insert(serializedData).into(this.TABLE_NAME);
+        let queryBuilder = knex.withSchema(config.get('dataStore').get('postgres').get('schema')).insert(serializedData).into(this.TABLE_NAME);
 
         if(tx)
         {
@@ -118,7 +119,7 @@ class SubscriptionStore
 
         let serializedData = this._serialize(subscription);
 
-        let queryBuilder = knex.update({
+        let queryBuilder = knex.withSchema(config.get('dataStore').get('postgres').get('schema')).update({
             isActive: serializedData.isActive,
             updatedAt: serializedData.updatedAt
         }).where({
@@ -149,7 +150,7 @@ class SubscriptionStore
 
         let serializedData = this._serialize(subscription);
 
-        let queryBuilder = knex.update({
+        let queryBuilder = knex.withSchema(config.get('dataStore').get('postgres').get('schema')).update({
             isActive: serializedData.isActive,
             updatedAt: serializedData.updatedAt
         }).where({
@@ -180,7 +181,7 @@ class SubscriptionStore
 
     retrieveByIds(subscriptionIds)
     {
-        return knex.select('*').from(this.TABLE_NAME)
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).select('*').from(this.TABLE_NAME)
         .whereIn('subscriptionId', subscriptionIds)
         .orderBy('updatedAt', 'desc')
         .then((rows) =>
@@ -206,7 +207,7 @@ class SubscriptionStore
             pageSize = 99999;
         }
 
-        return knex.select('*').from(this.TABLE_NAME)
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).select('*').from(this.TABLE_NAME)
         .whereIn('subscriber', subscribers)
         .offset(pageStart)
         .limit(pageSize)
@@ -219,7 +220,7 @@ class SubscriptionStore
 
     retrieveForATopicForASubscriber(topic, subscriber)
     {
-        return knex.select('*').from(this.TABLE_NAME)
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).select('*').from(this.TABLE_NAME)
         .where({
             subscriber: subscriber,
             topicId: topic.get('topicId')
@@ -256,7 +257,7 @@ class SubscriptionStore
             return currentTopic.get('topicId');
         });
 
-        return knex.select('*').from(this.TABLE_NAME)
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).select('*').from(this.TABLE_NAME)
         .whereIn('topicId', topicIds)
         .offset(pageStart)
         .limit(pageSize)

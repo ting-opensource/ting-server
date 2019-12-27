@@ -3,6 +3,7 @@
 const _ = require('lodash');
 const moment = require('moment');
 const Immutable = require('immutable');
+const config = require('config');
 
 const knex = require('../knex');
 const MessageWithReadReceipt = require('../../models/MessageWithReadReceipt').default;
@@ -75,7 +76,7 @@ class MessageWithReadReceiptStore
 
     retrieveByIds(messageIds, subscriberForReadReceipt)
     {
-        return knex.column([
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).column([
             `${messageStore.TABLE_NAME}.*`,
             `${readReceiptStore.TABLE_NAME}.updatedAt as readOn`
         ]).select().from(messageStore.TABLE_NAME)
@@ -103,7 +104,7 @@ class MessageWithReadReceiptStore
 
     retrieveByIdsForTopic(messageIds, topic, subscriberForReadReceipt)
     {
-        return knex.column([
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).column([
             `${messageStore.TABLE_NAME}.*`,
             `${readReceiptStore.TABLE_NAME}.updatedAt as readOn`
         ]).select().from(messageStore.TABLE_NAME)
@@ -133,7 +134,7 @@ class MessageWithReadReceiptStore
             pageSize = 99999;
         }
 
-        return knex.column([
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).column([
             `${messageStore.TABLE_NAME}.*`,
             `${readReceiptStore.TABLE_NAME}.updatedAt as readOn`
         ]).select().from(messageStore.TABLE_NAME)
@@ -165,7 +166,7 @@ class MessageWithReadReceiptStore
             pageSize = 99999;
         }
 
-        return knex.column([
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).column([
             `${messageStore.TABLE_NAME}.*`,
             `${readReceiptStore.TABLE_NAME}.updatedAt as readOn`
         ]).select().from(messageStore.TABLE_NAME)
@@ -192,7 +193,7 @@ class MessageWithReadReceiptStore
             pageSize = 99999;
         }
 
-        return knex.column([
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).column([
             `${messageStore.TABLE_NAME}.*`,
             `${readReceiptStore.TABLE_NAME}.updatedAt as readOn`
         ]).select().from(messageStore.TABLE_NAME)
@@ -222,7 +223,7 @@ class MessageWithReadReceiptStore
             pageSize = 99999;
         }
 
-        return knex.column([
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).column([
             `${messageStore.TABLE_NAME}.*`,
             `${readReceiptStore.TABLE_NAME}.updatedAt as readOn`
         ]).select().from(messageStore.TABLE_NAME)
@@ -257,7 +258,7 @@ class MessageWithReadReceiptStore
             pageSize = 99999;
         }
 
-        return knex.column([
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).column([
             `${messageStore.TABLE_NAME}.*`,
             `${readReceiptStore.TABLE_NAME}.updatedAt as readOn`
         ]).select().from(messageStore.TABLE_NAME)

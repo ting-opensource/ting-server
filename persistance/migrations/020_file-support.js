@@ -1,10 +1,12 @@
 'use strict';
 
+const config = require('config');
+
 const fileMetadataStore = require('../storage/FileMetadataStore');
 
 function createFileMetadataTable(knex)
 {
-    return knex.schema.createTable(fileMetadataStore.TABLE_NAME, function(table)
+    return knex.schema.withSchema(config.get('dataStore').get('postgres').get('schema')).createTable(fileMetadataStore.TABLE_NAME, function(table)
     {
         table.string('key', 256).primary();
         table.string('originalName', 1024);

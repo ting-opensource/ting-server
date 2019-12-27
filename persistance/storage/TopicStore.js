@@ -4,6 +4,7 @@ const _ = require('lodash');
 const uuid = require('uuid/v4');
 const moment = require('moment');
 const Immutable = require('immutable');
+const config = require('config');
 
 const knex = require('../knex');
 const Topic = require('../../models/Topic').default;
@@ -50,7 +51,7 @@ class TopicStore
 
         let serializedData = this._serialize(topic);
 
-        let queryBuilder = knex.insert(serializedData).into(this.TABLE_NAME);
+        let queryBuilder = knex.withSchema(config.get('dataStore').get('postgres').get('schema')).insert(serializedData).into(this.TABLE_NAME);
 
         if(tx)
         {
@@ -75,7 +76,7 @@ class TopicStore
 
     retrieveByIds(topicIds)
     {
-        return knex.select('*').from(this.TABLE_NAME)
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).select('*').from(this.TABLE_NAME)
         .whereIn('topicId', topicIds)
         .orderBy('updatedAt', 'desc')
         .then((rows) =>
@@ -105,7 +106,7 @@ class TopicStore
 
     retrieveByNames(names)
     {
-        return knex.select('*').from(this.TABLE_NAME)
+        return knex.withSchema(config.get('dataStore').get('postgres').get('schema')).select('*').from(this.TABLE_NAME)
         .whereIn('name', names)
         .orderBy('updatedAt', 'desc')
         .then((rows) =>

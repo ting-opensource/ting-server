@@ -1,22 +1,43 @@
-const cfenv = require('cfenv');
 
-const appEnv = cfenv.getAppEnv();
+let CLIENT_ID = '';
+let CLIENT_SECRET = '';
+let TOKEN_SIGNING_SECRET = '';
 
-const CLIENT_ID = process.env.CLIENT_ID || '__TING_CLIENT_ID__';
-const CLIENT_SECRET = process.env.CLIENT_SECRET || '__TING_CLIENT_SECRET__';
-const TOKEN_SIGNING_SECRET = process.env.TOKEN_SIGNING_SECRET || '__TING_TOKEN_SIGNING_SECRET__';
+let postgresCredentials = {};
 
-let postgresCredentials = null;
-if(process.env.POSTGRES_CF_SERVICE_NAME)
+if(process.env.VCAP_SERVICES)
 {
-    postgresCredentials = appEnv.getService(process.env.POSTGRES_CF_SERVICE_NAME).credentials;
+    const props = process.env.VCAP_SERVICES;
+    const propsJson = JSON.parse(props);
+    const cups = propsJson['user-provided'][0].credentials;
+
+    CLIENT_ID = cups['dcat.cups.notification.clientId'];
+    CLIENT_SECRET = cups['dcat.cups.notification.clientSecret'];
+    TOKEN_SIGNING_SECRET = cups['dcat.cups.notification.tokenSigningSecret'];
+
+    postgresCredentials = {
+        host: cups['dcat.cups.postgres.host'],
+        port: cups['dcat.cups.postgres.port'],
+        database: cups['dcat.cups.postgres.database'],
+        schema: cups['dcat.cups.postgres.notificationSchema'],
+        username: cups['dcat.cups.postgres.username'],
+        password: cups['dcat.cups.postgres.password']
+    };
 }
 
-let blobStoreCredentials = null;
-if(process.env.BLOBSTORE_CF_SERVICE_NAME)
-{
-    blobStoreCredentials = appEnv.getService(process.env.BLOBSTORE_CF_SERVICE_NAME).credentials;
-}
+let blobStoreCredentials = {
+    access_key_id: '',
+    secret_access_key: '',
+    bucket_name: 'dev.uploads',
+    host: 'http://localhost:3573',
+    url: 'http://localhost:3573/dev.uploads'
+};
+
+// let blobStoreCredentials = null;
+// if(process.env.BLOBSTORE_CF_SERVICE_NAME)
+// {
+//     blobStoreCredentials = appEnv.getService(process.env.BLOBSTORE_CF_SERVICE_NAME).credentials;
+// }
 
 module.exports = {
     auth: {
@@ -32,6 +53,7 @@ module.exports = {
             host: postgresCredentials.host,
             port: postgresCredentials.port,
             database: postgresCredentials.database,
+            schema: postgresCredentials.schema,
             user: postgresCredentials.username,
             password: postgresCredentials.password
         }

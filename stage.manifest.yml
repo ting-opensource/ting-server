@@ -1,0 +1,10 @@
+---
+applications:
+- name: ting-server-qa
+  buildpack: https://github.com/cloudfoundry/nodejs-buildpack
+  services:
+     - dcat-cups
+memory: 1G
+env:
+  NODE_ENV: staging
+
